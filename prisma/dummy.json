@@ -1,0 +1,497 @@
+{
+	"categories": [
+		{
+			"id": "1",
+			"name": "Water & Beverages"
+		},
+		{
+			"id": "2",
+			"name": "Food"
+		},
+		{
+			"id": "3",
+			"name": "Clothing & Bedding"
+		},
+		{
+			"id": "4",
+			"name": "Lighting & Electrical"
+		},
+		{
+			"id": "5",
+			"name": "Medical Supplies"
+		},
+		{
+			"id": "6",
+			"name": "Shelter & Tents"
+		},
+		{
+			"id": "7",
+			"name": "Hygiene & Sanitation"
+		},
+		{
+			"id": "8",
+			"name": "Tools & Equipment"
+		},
+		{
+			"id": "9",
+			"name": "Communication Devices"
+		},
+		{
+			"id": "10",
+			"name": "Infant & Child Care"
+		},
+		{
+			"id": "11",
+			"name": "Transportation"
+		},
+		{
+			"id": "12",
+			"name": "Pet Supplies"
+		}
+	],
+	"items": [
+		{
+			"id": "1",
+			"name": "Bottled Water",
+			"categoryId": "1",
+			"details": [
+				{
+					"detail_name": "volume",
+					"detail_value": "500ml"
+				},
+				{
+					"detail_name": "pack size",
+					"detail_value": "24"
+				}
+			]
+		},
+		{
+			"id": "2",
+			"name": "Canned Beans",
+			"categoryId": "2",
+			"details": [
+				{
+					"detail_name": "weight",
+					"detail_value": "400g"
+				},
+				{
+					"detail_name": "type",
+					"detail_value": "kidney beans"
+				}
+			]
+		},
+		{
+			"id": "3",
+			"name": "Blanket",
+			"categoryId": "3",
+			"details": [
+				{
+					"detail_name": "material",
+					"detail_value": "wool"
+				},
+				{
+					"detail_name": "size",
+					"detail_value": "twin"
+				}
+			]
+		},
+		{
+			"id": "4",
+			"name": "Flashlight",
+			"categoryId": "4",
+			"details": [
+				{
+					"detail_name": "battery type",
+					"detail_value": "AA"
+				},
+				{
+					"detail_name": "lumens",
+					"detail_value": "200"
+				}
+			]
+		},
+		{
+			"id": "5",
+			"name": "Bandages",
+			"categoryId": "5",
+			"details": [
+				{
+					"detail_name": "size",
+					"detail_value": "4 inch"
+				},
+				{
+					"detail_name": "quantity",
+					"detail_value": "50"
+				}
+			]
+		},
+		{
+			"id": "6",
+			"name": "Tent",
+			"categoryId": "6",
+			"details": [
+				{
+					"detail_name": "capacity",
+					"detail_value": "4 person"
+				},
+				{
+					"detail_name": "weight",
+					"detail_value": "8 lbs"
+				}
+			]
+		},
+		{
+			"id": "7",
+			"name": "Matches",
+			"categoryId": "4",
+			"details": [
+				{
+					"detail_name": "type",
+					"detail_value": "waterproof"
+				},
+				{
+					"detail_name": "quantity",
+					"detail_value": "100"
+				}
+			]
+		},
+		{
+			"id": "8",
+			"name": "Jacket",
+			"categoryId": "3",
+			"details": [
+				{
+					"detail_name": "size",
+					"detail_value": "large"
+				},
+				{
+					"detail_name": "material",
+					"detail_value": "nylon"
+				}
+			]
+		},
+		{
+			"id": "9",
+			"name": "Soap",
+			"categoryId": "7",
+			"details": [
+				{
+					"detail_name": "type",
+					"detail_value": "antibacterial"
+				},
+				{
+					"detail_name": "size",
+					"detail_value": "4 oz"
+				}
+			]
+		},
+		{
+			"id": "10",
+			"name": "Toothbrush",
+			"categoryId": "7",
+			"details": [
+				{
+					"detail_name": "bristles",
+					"detail_value": "soft"
+				},
+				{
+					"detail_name": "pack size",
+					"detail_value": "4"
+				}
+			]
+		},
+		{
+			"id": "11",
+			"name": "Energy Bars",
+			"categoryId": "2",
+			"details": [
+				{
+					"detail_name": "weight",
+					"detail_value": "50g"
+				},
+				{
+					"detail_name": "flavor",
+					"detail_value": "chocolate"
+				}
+			]
+		},
+		{
+			"id": "12",
+			"name": "Water Purification Tablets",
+			"categoryId": "1",
+			"details": [
+				{
+					"detail_name": "quantity",
+					"detail_value": "50 tablets"
+				},
+				{
+					"detail_name": "treatment capacity",
+					"detail_value": "1L per tablet"
+				}
+			]
+		},
+		{
+			"id": "13",
+			"name": "First Aid Kit",
+			"categoryId": "5",
+			"details": [
+				{
+					"detail_name": "contents",
+					"detail_value": "30 pieces"
+				},
+				{
+					"detail_name": "case material",
+					"detail_value": "plastic"
+				}
+			]
+		},
+		{
+			"id": "14",
+			"name": "Solar Charger",
+			"categoryId": "4",
+			"details": [
+				{
+					"detail_name": "capacity",
+					"detail_value": "10000mAh"
+				},
+				{
+					"detail_name": "output",
+					"detail_value": "5V/2A"
+				}
+			]
+		},
+		{
+			"id": "15",
+			"name": "Sleeping Bag",
+			"categoryId": "3",
+			"details": [
+				{
+					"detail_name": "temperature rating",
+					"detail_value": "0°C"
+				},
+				{
+					"detail_name": "material",
+					"detail_value": "synthetic"
+				}
+			]
+		},
+		{
+			"id": "16",
+			"name": "Multi-tool",
+			"categoryId": "8",
+			"details": [
+				{
+					"detail_name": "number of tools",
+					"detail_value": "14"
+				},
+				{
+					"detail_name": "material",
+					"detail_value": "stainless steel"
+				}
+			]
+		},
+		{
+			"id": "17",
+			"name": "Walkie-talkie",
+			"categoryId": "9",
+			"details": [
+				{
+					"detail_name": "range",
+					"detail_value": "5km"
+				},
+				{
+					"detail_name": "channels",
+					"detail_value": "22"
+				}
+			]
+		},
+		{
+			"id": "18",
+			"name": "Baby Formula",
+			"categoryId": "10",
+			"details": [
+				{
+					"detail_name": "weight",
+					"detail_value": "400g"
+				},
+				{
+					"detail_name": "age range",
+					"detail_value": "0-6 months"
+				}
+			]
+		},
+		{
+			"id": "19",
+			"name": "Hand Sanitizer",
+			"categoryId": "7",
+			"details": [
+				{
+					"detail_name": "volume",
+					"detail_value": "100ml"
+				},
+				{
+					"detail_name": "alcohol content",
+					"detail_value": "70%"
+				}
+			]
+		},
+		{
+			"id": "20",
+			"name": "Tarp",
+			"categoryId": "6",
+			"details": [
+				{
+					"detail_name": "size",
+					"detail_value": "10x12 feet"
+				},
+				{
+					"detail_name": "material",
+					"detail_value": "polyethylene"
+				}
+			]
+		},
+		{
+			"id": "21",
+			"name": "Portable Generator",
+			"categoryId": "4",
+			"details": [
+				{
+					"detail_name": "power output",
+					"detail_value": "2000W"
+				},
+				{
+					"detail_name": "fuel type",
+					"detail_value": "gasoline"
+				}
+			]
+		},
+		{
+			"id": "22",
+			"name": "Inflatable Boat",
+			"categoryId": "11",
+			"details": [
+				{
+					"detail_name": "capacity",
+					"detail_value": "4 person"
+				},
+				{
+					"detail_name": "material",
+					"detail_value": "heavy-duty PVC"
+				}
+			]
+		},
+		{
+			"id": "23",
+			"name": "Dog Food",
+			"categoryId": "12",
+			"details": [
+				{
+					"detail_name": "weight",
+					"detail_value": "20 lbs"
+				},
+				{
+					"detail_name": "type",
+					"detail_value": "dry kibble"
+				}
+			]
+		},
+		{
+			"id": "24",
+			"name": "Portable Water Filter",
+			"categoryId": "1",
+			"details": [
+				{
+					"detail_name": "capacity",
+					"detail_value": "1000L"
+				},
+				{
+					"detail_name": "filter type",
+					"detail_value": "activated carbon"
+				}
+			]
+		},
+		{
+			"id": "25",
+			"name": "Emergency Radio",
+			"categoryId": "9",
+			"details": [
+				{
+					"detail_name": "power source",
+					"detail_value": "solar/hand crank"
+				},
+				{
+					"detail_name": "features",
+					"detail_value": "NOAA weather alerts"
+				}
+			]
+		}
+	],
+	"announcements": [
+		{
+			"id": "1",
+			"content": "Urgent need for bottled water and canned food in the downtown area.",
+			"items": [
+				{ "itemId": "1", "quantity": 500 },
+				{ "itemId": "2", "quantity": 250 }
+			]
+		},
+		{
+			"id": "2",
+			"content": "Blankets and warm clothing needed for the upcoming cold front.",
+			"items": [
+				{ "itemId": "3", "quantity": 100 },
+				{ "itemId": "8", "quantity": 200 }
+			]
+		},
+		{
+			"id": "3",
+			"content": "Medical supplies running low, requesting bandages and first aid kits.",
+			"items": [
+				{ "itemId": "5", "quantity": 500 },
+				{ "itemId": "13", "quantity": 50 }
+			]
+		},
+		{
+			"id": "4",
+			"content": "Volunteers needed to distribute supplies at the main shelter.",
+			"items": [{ "itemId": "1", "quantity": 500 }]
+		},
+		{
+			"id": "5",
+			"content": "Generators and flashlights needed for the temporary housing units.",
+			"items": [
+				{ "itemId": "4", "quantity": 20 },
+				{ "itemId": "14", "quantity": 10 }
+			]
+		},
+		{
+			"id": "6",
+			"content": "Flood warning: Need inflatable boats and life jackets for potential evacuations.",
+			"items": [
+				{ "itemId": "22", "quantity": 10 },
+				{ "itemId": "8", "quantity": 50 }
+			]
+		},
+		{
+			"id": "7",
+			"content": "Extended power outage expected. Requesting portable generators and emergency radios.",
+			"items": [
+				{ "itemId": "21", "quantity": 5 },
+				{ "itemId": "25", "quantity": 100 }
+			]
+		},
+		{
+			"id": "8",
+			"content": "Pet supplies running low at animal shelter. Need dog and cat food urgently.",
+			"items": [{ "itemId": "23", "quantity": 50 }]
+		},
+		{
+			"id": "9",
+			"content": "Water contamination reported. Seeking bottled water and portable water filters.",
+			"items": [
+				{ "itemId": "1", "quantity": 1000 },
+				{ "itemId": "24", "quantity": 200 }
+			]
+		}
+	]
+}
