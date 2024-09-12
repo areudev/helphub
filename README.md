@@ -1,4 +1,16 @@
+# HelpHub
+
+University course project: Web-based disaster relief platform. Simulates
+streamlined emergency response, resource allocation, and volunteer coordination.
+Includes mock real-time updates, interactive maps, and mobile-friendly
+interface. Demonstrates practical application of web development skills in
+crisis management scenarios.
+
 ## Development
+
+### Install Depedencies:
+
+`npm install`
 
 ### Initial setup:
 
