@@ -11,7 +11,7 @@ export function getOfferOrRequestStatus(taskStatus?: string) {
 		case 'in_progress':
 			return 'approved'
 		case 'completed':
-			return 'completed'
+			return 'received'
 		case 'cancelled':
 			return 'cancelled'
 		default:
