@@ -5,7 +5,7 @@ import {
 	json,
 	type LoaderFunctionArgs,
 } from '@remix-run/node'
-import { Form, redirect, useLoaderData } from '@remix-run/react'
+import { Form, Link, redirect, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
 import { z } from 'zod'
 import { ErrorList } from '#app/components/forms.tsx'
@@ -66,7 +66,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 				select: { username: true },
 			},
 			announcement: { select: { content: true } },
-			task: { select: { id: true } },
+			task: { select: { id: true, rescuer: { select: { username: true } } } },
 		},
 	})
 
@@ -83,7 +83,7 @@ function OfferRow({
 		item: { name: string }
 		user: { username: string }
 		announcement: { content: string }
-		task: { id: string } | null
+		task: { id: string; rescuer: { username: string } } | null
 	}
 }) {
 	return (
@@ -97,7 +97,13 @@ function OfferRow({
 			</TableCell>
 			<TableCell className="flex justify-center gap-2">
 				{offer.task ? (
-					<Button size="sm">View Task</Button>
+					<Button size="sm">
+						<Link
+							to={`/users/${offer.task.rescuer.username}/tasks/${offer.task.id}`}
+						>
+							View Task
+						</Link>
+					</Button>
 				) : (
 					<AddToTasksForm offerId={offer.id} />
 				)}
