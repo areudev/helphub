@@ -2,6 +2,7 @@ import { type LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
 import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
+import { Input } from '#app/components/ui/input.tsx'
 import {
 	Table,
 	TableHeader,
@@ -13,7 +14,6 @@ import {
 } from '#app/components/ui/table.tsx'
 import { prisma } from '#app/utils/db.server.ts'
 import { requireUserWithRole } from '#app/utils/permissions.server.ts'
-import { TaskStatus } from '#app/utils/status.ts'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	await requireUserWithRole(request, 'admin')
@@ -43,11 +43,19 @@ export default function AdminTasksRoute() {
 	const { tasks } = useLoaderData<typeof loader>()
 	const [searchTerm, setSearchTerm] = useState('')
 
+	const filteredTasks = tasks.filter(
+		(task) =>
+			task.request?.item.name
+				.toLowerCase()
+				.includes(searchTerm.toLowerCase()) ||
+			task.offer?.item.name.toLowerCase().includes(searchTerm.toLowerCase()),
+	)
+
 	return (
 		<div className="container mx-auto py-8">
 			<h1 className="mb-6 text-3xl font-bold">Requests Management</h1>
 
-			{/* <div className="mb-4">
+			<div className="mb-4">
 				<Input
 					type="text"
 					placeholder="Search requests..."
@@ -55,7 +63,7 @@ export default function AdminTasksRoute() {
 					onChange={(e) => setSearchTerm(e.target.value)}
 					className="max-w-md"
 				/>
-			</div> */}
+			</div>
 
 			<div className="overflow-x-auto">
 				<Table>
@@ -70,7 +78,7 @@ export default function AdminTasksRoute() {
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{tasks.map((task) => (
+						{filteredTasks.map((task) => (
 							<TaskRow task={task} key={task.id} />
 						))}
 					</TableBody>
