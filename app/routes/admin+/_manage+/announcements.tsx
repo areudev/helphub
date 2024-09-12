@@ -270,15 +270,3 @@ export default function AdminAnnouncementsRoute() {
 		</div>
 	)
 }
-
-export function ErrorBoundary() {
-	return (
-		<GeneralErrorBoundary
-			statusHandlers={{
-				403: ({ error }) => (
-					<p>You are not allowed to do that: {error?.data.message}</p>
-				),
-			}}
-		/>
-	)
-}

@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from '@remix-run/react'
+import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
 import { cn } from '#app/utils/misc.tsx'
 
 export default function Manage() {
@@ -82,5 +83,17 @@ export default function Manage() {
 			</div>
 			<Outlet />
 		</>
+	)
+}
+
+export function ErrorBoundary() {
+	return (
+		<GeneralErrorBoundary
+			statusHandlers={{
+				403: ({ error }) => (
+					<p>You are not allowed to do that: {error?.data.message}</p>
+				),
+			}}
+		/>
 	)
 }

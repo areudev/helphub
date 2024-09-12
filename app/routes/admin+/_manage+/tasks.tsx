@@ -1,7 +1,6 @@
 import { type LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
-import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
 import { Input } from '#app/components/ui/input.tsx'
 import {
 	Table,
@@ -109,17 +108,5 @@ function TaskRow({
 			<TableCell className="text-center">{task.status}</TableCell>
 			<TableCell className="flex justify-center gap-2">Wip</TableCell>
 		</TableRow>
-	)
-}
-
-export function ErrorBoundary() {
-	return (
-		<GeneralErrorBoundary
-			statusHandlers={{
-				403: ({ error }) => (
-					<p>You are not allowed to do that: {error?.data.message}</p>
-				),
-			}}
-		/>
 	)
 }

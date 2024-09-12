@@ -13,7 +13,6 @@ import {
 import { useFetcher, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
 import { z } from 'zod'
-import { GeneralErrorBoundary } from '#app/components/error-boundary.js'
 import { ErrorList, Field } from '#app/components/forms.tsx'
 import { SelectField } from '#app/components/select-field.js'
 import { Button } from '#app/components/ui/button.tsx'
@@ -284,17 +283,5 @@ export default function AdminOffersRoute() {
 				</Table>
 			</div>
 		</div>
-	)
-}
-
-export function ErrorBoundary() {
-	return (
-		<GeneralErrorBoundary
-			statusHandlers={{
-				403: ({ error }) => (
-					<p>You are not allowed to do that: {error?.data.message}</p>
-				),
-			}}
-		/>
 	)
 }

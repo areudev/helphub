@@ -8,7 +8,6 @@ import {
 import { useFetcher, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
 import { z } from 'zod'
-import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
 import { ErrorList } from '#app/components/forms.tsx'
 import { Button } from '#app/components/ui/button.tsx'
 import { Checkbox } from '#app/components/ui/checkbox.tsx'
@@ -219,17 +218,5 @@ export default function AdminUsersRoute() {
 				</Table>
 			</div>
 		</div>
-	)
-}
-
-export function ErrorBoundary() {
-	return (
-		<GeneralErrorBoundary
-			statusHandlers={{
-				403: ({ error }) => (
-					<p>You are not allowed to do that: {error?.data.message}</p>
-				),
-			}}
-		/>
 	)
 }
