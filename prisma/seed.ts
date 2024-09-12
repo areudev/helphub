@@ -205,13 +205,28 @@ async function seed() {
 
 	for (let index = 0; index < totalRescuers; index++) {
 		const rescuerData = createUser()
-		const requests = await prisma.request.findFirstOrThrow({
+		const request = await prisma.request.findFirstOrThrow({
 			select: { id: true },
 			where: { task: { is: null } },
 		})
-		const offers = await prisma.offer.findFirstOrThrow({
+
+		const offer = await prisma.offer.findFirstOrThrow({
 			select: { id: true },
 			where: { task: { is: null } },
+		})
+
+		await prisma.request.update({
+			where: { id: request.id },
+			data: {
+				status: 'approved',
+			},
+		})
+
+		await prisma.offer.update({
+			where: { id: offer.id },
+			data: {
+				status: 'approved',
+			},
 		})
 
 		await prisma.user
@@ -225,8 +240,8 @@ async function seed() {
 					tasks: {
 						createMany: {
 							data: [
-								{ requestId: requests.id, status: 'pending' },
-								{ offerId: offers.id, status: 'pending' },
+								{ requestId: request.id, status: 'pending' },
+								{ offerId: offer.id, status: 'pending' },
 							],
 						},
 					},
