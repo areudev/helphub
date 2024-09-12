@@ -53,6 +53,13 @@ export async function action({ request }: ActionFunctionArgs) {
 		select: { id: true },
 	})
 
+	await prisma.request.update({
+		where: { id: requestId },
+		data: {
+			status: 'approved',
+		},
+	})
+
 	return redirect(`/users/${user?.username}/tasks/${task.id}`)
 }
 
