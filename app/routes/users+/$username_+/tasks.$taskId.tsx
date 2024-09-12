@@ -124,23 +124,6 @@ export async function action({ request }: ActionFunctionArgs) {
 	}
 
 	await prisma.task.delete({ where: { id: task.id } })
-	task?.requestId
-		? await prisma.request.update({
-				where: { id: task.requestId },
-				data: {
-					status: 'pending',
-				},
-				select: { id: true },
-			})
-		: task?.offerId
-			? await prisma.offer.update({
-					where: { id: task.offerId },
-					data: {
-						status: 'pending',
-					},
-					select: { id: true },
-				})
-			: null
 
 	return redirectWithToast(`/users/${task.rescuer.username}/tasks`, {
 		type: 'success',

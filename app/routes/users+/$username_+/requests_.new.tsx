@@ -83,7 +83,6 @@ export async function action({ request }: ActionFunctionArgs) {
 			quantity,
 			numberOfPeople,
 			notes,
-			status: 'pending',
 		},
 		select: { id: true, user: { select: { username: true } } },
 	})

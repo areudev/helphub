@@ -14,7 +14,6 @@ import { useFetcher, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
 import { z } from 'zod'
 import { ErrorList, Field } from '#app/components/forms.tsx'
-import { SelectField } from '#app/components/select-field.js'
 import { Button } from '#app/components/ui/button.tsx'
 import { Input } from '#app/components/ui/input.tsx'
 import {
@@ -33,11 +32,10 @@ import {
 } from '#app/components/ui/table.tsx'
 import { prisma } from '#app/utils/db.server.ts'
 import { requireUserWithRole } from '#app/utils/permissions.server.ts'
-import { RequestStatus } from '#app/utils/status.ts'
+import { getOfferOrRequestStatus } from '#app/utils/status.ts'
 
 const RequestSchema = z.object({
 	id: z.string(),
-	status: RequestStatus,
 	quantity: z.number().int().positive(),
 	numberOfPeople: z.number().int().positive(),
 })
@@ -69,11 +67,11 @@ async function editAction({ formData }: { formData: FormData }) {
 	if (submission.status !== 'success') {
 		return json({ result: submission.reply() }, { status: 400 })
 	}
-	const { id, status, quantity, numberOfPeople } = submission.value
+	const { id, quantity, numberOfPeople } = submission.value
 
 	await prisma.request.update({
 		where: { id },
-		data: { status, quantity, numberOfPeople },
+		data: { quantity, numberOfPeople },
 	})
 
 	return json({ result: submission.reply() })
@@ -100,17 +98,30 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	await requireUserWithRole(request, 'admin')
 
 	const requests = await prisma.request.findMany({
-		include: {
-			user: {
+		// include: {
+		// 	user: {
+		// 		select: {
+		// 			username: true,
+		// 		},
+		// 	},
+		// 	item: {
+		// 		select: {
+		// 			name: true,
+		// 		},
+		// 	},
+		// },
+		select: {
+			id: true,
+			quantity: true,
+			numberOfPeople: true,
+			notes: true,
+			task: {
 				select: {
-					username: true,
+					status: true,
 				},
 			},
-			item: {
-				select: {
-					name: true,
-				},
-			},
+			user: { select: { username: true } },
+			item: { select: { name: true } },
 		},
 	})
 
@@ -122,21 +133,22 @@ function RequestRow({
 }: {
 	request: {
 		id: string
-		status: string
 		quantity: number
 		numberOfPeople: number
 		notes: string | null
 		user: { username: string }
 		item: { name: string }
+		task: { status: string } | null
 	}
 }) {
+	const status = getOfferOrRequestStatus(request.task?.status)
 	return (
 		<TableRow className="text-center" key={request.id}>
 			<TableCell>{request.user.username}</TableCell>
 			<TableCell>{request.item.name}</TableCell>
 			<TableCell>{request.quantity}</TableCell>
 			<TableCell>{request.numberOfPeople}</TableCell>
-			<TableCell>{request.status}</TableCell>
+			<TableCell>{status}</TableCell>
 			<TableCell className="">{request.notes}</TableCell>
 			<TableCell className="flex justify-center gap-2">
 				<Popover>
@@ -162,7 +174,6 @@ function EditForm({
 }: {
 	request: {
 		id: string
-		status: string
 		quantity: number
 		numberOfPeople: number
 		notes: string | null
@@ -179,7 +190,6 @@ function EditForm({
 			return parseWithZod(formData, { schema: RequestSchema })
 		},
 		defaultValue: {
-			status: request.status,
 			quantity: request.quantity,
 			numberOfPeople: request.numberOfPeople,
 		},
@@ -190,16 +200,7 @@ function EditForm({
 		<FormProvider context={form.context}>
 			<fetcher.Form method="POST" {...getFormProps(form)}>
 				<input type="hidden" name="id" value={request.id} />
-				<SelectField
-					label="Status"
-					name="status"
-					options={[
-						{ value: 'pending', label: 'Pending' },
-						{ value: 'approved', label: 'Approved' },
-						{ value: 'received', label: 'Received' },
-					]}
-				/>
-				<ErrorList errors={fields.status.errors} />
+
 				<Field
 					labelProps={{ children: 'Quantity' }}
 					inputProps={{
@@ -253,8 +254,7 @@ export default function AdminRequestsRoute() {
 	const filteredRequests = requests.filter(
 		(request) =>
 			request.user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			request.item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			request.status.toLowerCase().includes(searchTerm.toLowerCase()),
+			request.item.name.toLowerCase().includes(searchTerm.toLowerCase()),
 	)
 
 	return (

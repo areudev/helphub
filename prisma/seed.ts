@@ -148,7 +148,6 @@ async function seed() {
 									min: 1,
 									max: 10,
 								}),
-								status: 'pending',
 								announcement: {
 									connect: { id: announcement.id },
 								},
@@ -170,7 +169,6 @@ async function seed() {
 								itemId: item.id,
 								quantity,
 								numberOfPeople,
-								status: 'pending',
 								notes: note,
 							}
 						}),
@@ -213,20 +211,6 @@ async function seed() {
 		const offer = await prisma.offer.findFirstOrThrow({
 			select: { id: true },
 			where: { task: { is: null } },
-		})
-
-		await prisma.request.update({
-			where: { id: request.id },
-			data: {
-				status: 'approved',
-			},
-		})
-
-		await prisma.offer.update({
-			where: { id: offer.id },
-			data: {
-				status: 'approved',
-			},
 		})
 
 		await prisma.user

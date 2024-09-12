@@ -76,7 +76,6 @@ export async function action({ request }: ActionFunctionArgs) {
 			announcementId,
 			quantity,
 			userId,
-			status: 'pending',
 			notes,
 		},
 		select: { id: true, user: { select: { username: true } } },
