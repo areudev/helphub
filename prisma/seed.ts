@@ -205,6 +205,15 @@ async function seed() {
 
 	for (let index = 0; index < totalRescuers; index++) {
 		const rescuerData = createUser()
+		const requests = await prisma.request.findFirstOrThrow({
+			select: { id: true },
+			where: { task: { is: null } },
+		})
+		const offers = await prisma.offer.findFirstOrThrow({
+			select: { id: true },
+			where: { task: { is: null } },
+		})
+
 		await prisma.user
 			.create({
 				select: { id: true },
@@ -213,6 +222,14 @@ async function seed() {
 					password: { create: createPassword(rescuerData.username) },
 					image: { create: userImages[index % userImages.length] },
 					roles: { connect: [{ name: 'rescuer' }, { name: 'user' }] },
+					tasks: {
+						createMany: {
+							data: [
+								{ requestId: requests.id, status: 'pending' },
+								{ offerId: offers.id, status: 'pending' },
+							],
+						},
+					},
 				},
 			})
 			.catch((e) => {
