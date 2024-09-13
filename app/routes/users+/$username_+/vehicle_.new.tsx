@@ -1,21 +1,17 @@
+import { getFormProps, getInputProps, useForm } from '@conform-to/react'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import {
-	ActionFunctionArgs,
+	type ActionFunctionArgs,
 	type LoaderFunctionArgs,
 	json,
 } from '@remix-run/node'
-import {
-	Form,
-	Link,
-	redirect,
-	useActionData,
-	useLoaderData,
-} from '@remix-run/react'
+import { Form, redirect, useActionData } from '@remix-run/react'
+import { z } from 'zod'
+import { Field } from '#app/components/forms.tsx'
 import { Button } from '#app/components/ui/button.tsx'
 import { prisma } from '#app/utils/db.server.ts'
 import { requireUserWithRole } from '#app/utils/permissions.server.ts'
-import { z } from 'zod'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
-import { useForm } from '@conform-to/react'
+import { redirectWithToast } from '#app/utils/toast.server.ts'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const userId = await requireUserWithRole(request, 'rescuer')
@@ -25,7 +21,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 	})
 
 	if (vehicle) {
-		redirect(`/users/${userId}/vehicle/edit`)
+		return redirectWithToast(`/users/${userId}/vehicle/edit`, {
+			title: 'Vehicle already exists',
+			description: 'You already have a vehicle',
+		})
 	}
 	// return json({ userId })
 	return json({})
@@ -83,7 +82,23 @@ export default function VehicleNewPage() {
 		<div className="container mx-auto max-w-4xl space-y-8 px-4 py-8">
 			<div className="mx-auto max-w-2xl rounded-lg border bg-card p-5 shadow-md">
 				<h2 className="mb-8 text-body-lg font-semibold">Add your vehicle</h2>
-				<Form method="POST"></Form>
+				<Form method="POST" {...getFormProps(form)}>
+					<Field
+						labelProps={{ children: 'Name' }}
+						inputProps={{
+							...getInputProps(fields.name, { type: 'text' }),
+						}}
+						errors={fields.name.errors}
+					/>
+					<Field
+						labelProps={{ children: 'Capacity' }}
+						inputProps={{
+							...getInputProps(fields.capacity, { type: 'number' }),
+						}}
+						errors={fields.capacity.errors}
+					/>
+					<Button type="submit">Create </Button>
+				</Form>
 			</div>
 		</div>
 	)
