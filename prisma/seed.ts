@@ -13,6 +13,20 @@ import {
 import { insertGitHubUser } from '#tests/mocks/github.ts'
 import dummyData from './dummy.json'
 
+const dummyPositions = [
+	{ latitude: 38.246639, longitude: 21.734573 },
+	{ latitude: 38.27973314738955, longitude: 21.76889308222365 },
+	{ latitude: 38.30827797135121, longitude: 21.807143999339814 },
+	{ latitude: 38.20870136926265, longitude: 21.767370300348965 },
+	{ latitude: 38.18577825500854, longitude: 21.700383421056245 },
+	{ latitude: 38.1708438469576, longitude: 21.456267194043285 },
+	{ latitude: 38.14066837382343, longitude: 21.555111748474655 },
+	{ latitude: 38.10500834226745, longitude: 21.469817848568383 },
+	{ latitude: 38.053167419998864, longitude: 21.381434744395275 },
+	{ latitude: 38.04201844526803, longitude: 21.44969778773879 },
+	{ latitude: 38.10708738646101, longitude: 21.784023610957185 },
+	{ latitude: 38.19156326787096, longitude: 21.804957707743004 },
+]
 async function seed() {
 	console.log('🌱 Seeding...')
 	console.time(`🌱 Database has been seeded`)
@@ -130,6 +144,8 @@ async function seed() {
 				select: { id: true },
 				data: {
 					...userData,
+					latitude: dummyPositions[index + 1]?.latitude,
+					longitude: dummyPositions[index + 1]?.longitude,
 					password: { create: createPassword(userData.username) },
 					image: { create: userImages[index % userImages.length] },
 					roles: { connect: { name: 'user' } },
@@ -218,6 +234,15 @@ async function seed() {
 				select: { id: true },
 				data: {
 					...rescuerData,
+					latitude: dummyPositions[index + 7]?.latitude,
+					longitude: dummyPositions[index + 7]?.longitude,
+					vehicle: {
+						create: {
+							name: faker.vehicle.model(),
+							capacity: faker.number.int({ min: 1, max: 10 }),
+							status: 'available',
+						},
+					},
 					password: { create: createPassword(rescuerData.username) },
 					image: { create: userImages[index % userImages.length] },
 					roles: { connect: [{ name: 'rescuer' }, { name: 'user' }] },
@@ -283,6 +308,15 @@ async function seed() {
 			email: 'kody@kcd.dev',
 			username: 'kody',
 			name: 'Kody',
+			latitude: dummyPositions[0]?.latitude,
+			longitude: dummyPositions[0]?.longitude,
+			vehicle: {
+				create: {
+					name: 'Mothership',
+					capacity: 420,
+					status: 'available',
+				},
+			},
 			image: { create: kodyImages.kodyUser },
 			password: { create: createPassword('kodylovesyou') },
 			connections: {
