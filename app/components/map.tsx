@@ -1,7 +1,7 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { dummyPositions, patrasCenter } from '#app/utils/locations.ts'
-
+import L from 'leaflet'
 // const customIcon = new L
 export default function Map() {
 	return (
