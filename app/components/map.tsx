@@ -1,8 +1,15 @@
+import L from 'leaflet'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { dummyPositions, patrasCenter } from '#app/utils/locations.ts'
-import L from 'leaflet'
-// const customIcon = new L
+
+const baseIcon = L.icon({
+	iconUrl: '/img/user.png',
+	iconSize: [25, 41],
+	iconAnchor: [12, 41],
+	popupAnchor: [1, -34],
+})
+
 export default function Map() {
 	return (
 		<MapContainer
@@ -20,6 +27,7 @@ export default function Map() {
 					<Marker
 						key={index}
 						position={[position.latitude, position.longitude]}
+						icon={baseIcon}
 					/>
 				)
 			})}
