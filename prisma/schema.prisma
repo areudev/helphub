@@ -276,11 +276,11 @@ model Task {
   updatedAt              DateTime @updatedAt
 }
 
-// model Base {
-//   id String @id @default(cuid())
-//   latitude Float
-//   longitude Float
-// }
+model Base {
+  id String @id @default(cuid())
+  latitude Float
+  longitude Float
+}
 
 model Category {
   id      String @id @default(cuid())

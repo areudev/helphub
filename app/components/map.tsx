@@ -1,41 +1,19 @@
-import L from 'leaflet'
+import { useFetcher } from '@remix-run/react'
+import L, { type Marker as LeafletMarker } from 'leaflet'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { patrasCenter } from '#app/utils/locations.ts'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Marker as LeafletMarker } from 'leaflet'
 import { Button } from './ui/button'
-
-const vehicleIcon = L.icon({
-	iconUrl: '/img/mark-aid.svg',
-	iconSize: [32, 32],
-	iconAnchor: [12, 41],
-	popupAnchor: [1, -34],
-})
-const warehouseIcon = L.icon({
-	iconUrl: '/img/locationw.svg',
-	iconSize: [32, 32],
-	iconAnchor: [12, 41],
-	popupAnchor: [1, -34],
-})
-
-const offerIcon = L.icon({
-	iconUrl: '/img/mark-plus.svg',
-	iconSize: [32, 32],
-	iconAnchor: [12, 41],
-	popupAnchor: [1, -34],
-})
-
-const requestIcon = L.icon({
-	iconUrl: '/img/mark-x.svg',
-	iconSize: [32, 32],
-	iconAnchor: [12, 41],
-	popupAnchor: [1, -34],
-})
 
 export default function Map({
 	positions,
+	base,
 }: {
+	base: {
+		latitude: number
+		longitude: number
+	}
 	positions: {
 		latitude: number | null
 		longitude: number | null
@@ -44,12 +22,13 @@ export default function Map({
 		name: string
 	}[]
 }) {
+	let basePosition = [base.latitude, base.longitude] as [number, number]
+
 	return (
 		<MapContainer
 			className="h-full w-full"
 			center={[patrasCenter.latitude, patrasCenter.longitude]}
 			zoom={12}
-			// style={{ height: '400px' }}
 		>
 			<TileLayer
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -80,19 +59,16 @@ export default function Map({
 						</Marker>
 					)
 				})}
-			{/* Marker for Base */}
 
-			<BaseMarker />
+			<BaseMarker position={basePosition} />
 		</MapContainer>
 	)
 }
-const warehousePosition: [number, number] = [
-	38.24200983952633, 21.736916818180042,
-]
 
-function BaseMarker() {
+function BaseMarker({ position }: { position: [number, number] }) {
+	const fetcher = useFetcher()
 	const [draggable, setDraggable] = useState(false)
-	const [position, setPosition] = useState(warehousePosition)
+
 	const markerRef = useRef<LeafletMarker | null>(null)
 	const eventHandlers = useMemo(
 		() => ({
@@ -100,8 +76,14 @@ function BaseMarker() {
 				const marker = markerRef.current
 				if (marker != null) {
 					const newPos = marker.getLatLng()
-					console.log(newPos)
-					setPosition([newPos.lat, newPos.lng])
+
+					fetcher.submit(
+						{
+							latitude: newPos.lat.toString(),
+							longitude: newPos.lng.toString(),
+						},
+						{ method: 'post' },
+					)
 				}
 			},
 		}),
@@ -115,7 +97,7 @@ function BaseMarker() {
 		<Marker
 			draggable={draggable}
 			eventHandlers={eventHandlers}
-			position={position}
+			position={position as [number, number]}
 			icon={warehouseIcon}
 			ref={markerRef}
 		>
@@ -123,37 +105,36 @@ function BaseMarker() {
 				<Button onClick={toggleDraggable}>
 					{draggable
 						? 'Base is draggable'
-						: 'Click here to make marker draggable'}
+						: 'Click here to make base draggable'}
 				</Button>
 			</Popup>
 		</Marker>
 	)
 }
 
-// const warehousePosition = [38.24200983952633, 21.736916818180042] as const
-// function DraggableMarker() {
-// 	const [position, setPosition] = useState<[number, number]>(warehousePosition)
-// 	const map = useMap()
+const vehicleIcon = L.icon({
+	iconUrl: '/img/mark-aid.svg',
+	iconSize: [32, 32],
+	iconAnchor: [12, 41],
+	popupAnchor: [1, -34],
+})
+const warehouseIcon = L.icon({
+	iconUrl: '/img/locationw.svg',
+	iconSize: [32, 32],
+	iconAnchor: [12, 41],
+	popupAnchor: [1, -34],
+})
 
-// 	useEffect(() => {
-// 		map.on('click', (e) => {
-// 			setPosition([e.latlng.lat, e.latlng.lng])
-// 		})
-// 	}, [map])
+const offerIcon = L.icon({
+	iconUrl: '/img/mark-plus.svg',
+	iconSize: [32, 32],
+	iconAnchor: [12, 41],
+	popupAnchor: [1, -34],
+})
 
-// 	return (
-// 		<Marker
-// 			draggable={true}
-// 			position={position}
-// 			eventHandlers={{
-// 				dragend: (e) => {
-// 					const marker = e.target
-// 					const position = marker.getLatLng()
-// 					setPosition([position.lat, position.lng])
-// 				},
-// 			}}
-// 		>
-// 			<Popup>Drag me to set the base location!</Popup>
-// 		</Marker>
-// 	)
-// }
+const requestIcon = L.icon({
+	iconUrl: '/img/mark-x.svg',
+	iconSize: [32, 32],
+	iconAnchor: [12, 41],
+	popupAnchor: [1, -34],
+})

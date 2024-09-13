@@ -44,6 +44,18 @@ async function seed() {
 	await cleanupDb(prisma)
 	console.timeEnd('🧹 Cleaned up the database...')
 
+	const warehousePosition: [number, number] = [
+		38.24200983952633, 21.736916818180042,
+	]
+	console.time('🏢 Created base...')
+	await prisma.base.create({
+		data: {
+			latitude: warehousePosition[0],
+			longitude: warehousePosition[1],
+		},
+	})
+	console.timeEnd('🏢 Created base...')
+
 	console.time('🔑 Created permissions...')
 	const entities = ['user', 'note']
 	const actions = ['create', 'read', 'update', 'delete']

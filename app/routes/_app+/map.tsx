@@ -1,22 +1,52 @@
-import { type LoaderFunctionArgs, json } from '@remix-run/node'
+import { invariantResponse } from '@epic-web/invariant'
+import {
+	type ActionFunctionArgs,
+	type LoaderFunctionArgs,
+	json,
+} from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { lazy, Suspense } from 'react'
 import { ClientOnly } from 'remix-utils/client-only'
 import { useGeolocation } from '#app/hooks/use-geolocation.tsx'
 import { prisma } from '#app/utils/db.server.ts'
-// import { useIsClient } from '#app/utils/misc.tsx'
+import { requireUserWithRole } from '#app/utils/permissions.server.ts'
 
 const LazyMap = lazy(() => import('#app/components/map.tsx'))
+
+export async function action({ request }: ActionFunctionArgs) {
+	await requireUserWithRole(request, 'admin')
+	const formData = await request.formData()
+	const latitude = formData.get('latitude')
+	const longitude = formData.get('longitude')
+
+	if (typeof latitude !== 'string' || typeof longitude !== 'string') {
+		return json({ error: 'Invalid latitude or longitude' }, { status: 400 })
+	}
+
+	const base = await prisma.base.findFirst({
+		select: { id: true },
+	})
+
+	invariantResponse(base, 'Base not found')
+
+	await prisma.base.update({
+		where: { id: base.id },
+		data: {
+			latitude: parseFloat(latitude),
+			longitude: parseFloat(longitude),
+		},
+	})
+
+	return json({ success: true })
+}
 export async function loader({ request }: LoaderFunctionArgs) {
-	// const users = await prisma.user.findMany({
-	// 	select: {
-	// 		id: true,
-	// 		longitude: true,
-	// 		latitude: true,
-	// 		roles: true,
-	// 		username: true,
-	// 	},
-	// })
+	const base = await prisma.base.findFirst({
+		select: {
+			latitude: true,
+			longitude: true,
+		},
+	})
+	invariantResponse(base, 'asdfsafaf')
 
 	const vehicles = await prisma.vehicle.findMany({
 		select: {
@@ -56,10 +86,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			quantity: true,
 		},
 	})
-	return json({ vehicles, offers, requests })
+	return json({ vehicles, offers, requests, base })
 }
 export default function MapRoute() {
-	const { vehicles, offers, requests } = useLoaderData<typeof loader>()
+	const { vehicles, offers, requests, base } = useLoaderData<typeof loader>()
 	const allPositions = [
 		...vehicles.map((vehicle) => ({
 			latitude: vehicle.user.latitude,
@@ -92,7 +122,7 @@ export default function MapRoute() {
 				<ClientOnly fallback={<p>Loading map...</p>}>
 					{() => (
 						<Suspense fallback={<div>Loading map...</div>}>
-							<LazyMap positions={allPositions} />
+							<LazyMap positions={allPositions} base={base} />
 						</Suspense>
 					)}
 				</ClientOnly>
