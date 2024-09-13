@@ -4,8 +4,8 @@ import 'leaflet/dist/leaflet.css'
 import { dummyPositions, patrasCenter } from '#app/utils/locations.ts'
 
 const baseIcon = L.icon({
-	iconUrl: '/img/user.png',
-	iconSize: [25, 41],
+	iconUrl: '/img/user.svg',
+	iconSize: [32, 32],
 	iconAnchor: [12, 41],
 	popupAnchor: [1, -34],
 })
