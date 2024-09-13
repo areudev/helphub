@@ -1,33 +1,37 @@
 import { type LoaderFunctionArgs, json } from '@remix-run/node'
-import { NavLink, Outlet, useLoaderData } from '@remix-run/react'
+import { Link, NavLink, Outlet, useLoaderData } from '@remix-run/react'
+import { Button } from '#app/components/ui/button.tsx'
 import { getUserId } from '#app/utils/auth.server.ts'
 import { prisma } from '#app/utils/db.server.ts'
 import { cn } from '#app/utils/misc.tsx'
-import { Button } from '#app/components/ui/button.tsx'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const userId = await getUserId(request)
 
 	let isRescuer = false
+	let username = null
 
 	if (userId) {
 		const user = await prisma.user.findUnique({
 			where: { id: userId },
-			select: { roles: true, vehicle: true },
+			select: { roles: true, vehicle: true, username: true },
 		})
 		isRescuer =
-			Boolean(user?.roles.some((role) => role.name === 'rescuer')) ||
-			Boolean(user?.vehicle)
+			Boolean(user?.roles.some((role) => role.name === 'rescuer')) &&
+			!Boolean(user?.vehicle)
+		username = user?.username
 	}
 
-	return json({ isRescuer })
+	return json({ isRescuer, username })
 }
 
 export default function AppLayout() {
-	const { isRescuer } = useLoaderData<typeof loader>()
+	const { isRescuer, username } = useLoaderData<typeof loader>()
 	return (
 		<div className="space-y-4">
-			{isRescuer && <RescuerOnlyWarning />}
+			{isRescuer && username ? (
+				<RescuerOnlyWarning username={username} />
+			) : null}
 
 			<div className="flex justify-center">
 				<div
@@ -78,13 +82,17 @@ export default function AppLayout() {
 	)
 }
 
-function RescuerOnlyWarning() {
+function RescuerOnlyWarning({ username }: { username: string }) {
 	return (
 		<div className="mx-auto flex max-w-xl flex-col items-center justify-center gap-2 rounded-md bg-destructive/30 p-4">
 			<p className="text-body-sm">
 				As a rescuer, you need to create a car to use this app.
 			</p>
-			<Button variant={'outline'}>Create car</Button>
+			{
+				<Button variant={'outline'}>
+					<Link to={`/users/${username}/vehicle`}>Create vehicle</Link>
+				</Button>
+			}
 		</div>
 	)
 }
