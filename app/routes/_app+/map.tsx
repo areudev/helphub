@@ -136,7 +136,7 @@ export default function MapRoute() {
 		<div className="container mx-auto max-w-4xl space-y-8 px-4 py-8">
 			<h1 className="text-h3">Map</h1>
 
-			<div className="h-[600px]">
+			<div className="light h-[600px]">
 				<ClientOnly fallback={<p>Loading map...</p>}>
 					{() => (
 						<Suspense fallback={<div>Loading map...</div>}>
