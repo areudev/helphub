@@ -1,9 +1,9 @@
 import { type LoaderFunctionArgs, json } from '@remix-run/node'
+import { useLoaderData } from '@remix-run/react'
 import { lazy, Suspense } from 'react'
 import { ClientOnly } from 'remix-utils/client-only'
 import { useGeolocation } from '#app/hooks/use-geolocation.tsx'
 import { prisma } from '#app/utils/db.server.ts'
-import { useLoaderData } from '@remix-run/react'
 // import { useIsClient } from '#app/utils/misc.tsx'
 
 const LazyMap = lazy(() => import('#app/components/map.tsx'))

@@ -1,7 +1,7 @@
 import L from 'leaflet'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
-import { dummyPositions, patrasCenter } from '#app/utils/locations.ts'
+import { patrasCenter } from '#app/utils/locations.ts'
 
 const vehicleIcon = L.icon({
 	iconUrl: '/img/rocket.svg',
@@ -60,9 +60,21 @@ export default function Map({
 										? offerIcon
 										: requestIcon
 							}
-						/>
+						>
+							<Popup>
+								<div>
+									<p>{position.name}</p>
+									<p>{position.username}</p>
+									<p>{position.type}</p>
+								</div>
+							</Popup>
+						</Marker>
 					)
 				})}
+			{/* Marker for Base */}
+			<Marker position={[patrasCenter.latitude, patrasCenter.longitude]}>
+				<Popup>Base</Popup>
+			</Marker>
 		</MapContainer>
 	)
 }
