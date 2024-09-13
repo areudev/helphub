@@ -6,21 +6,27 @@ import 'leaflet/dist/leaflet.css'
 import { patrasCenter } from '#app/utils/locations.ts'
 import { Button } from './ui/button'
 
+type Position = {
+	latitude: number | null
+	longitude: number | null
+	username: string
+	type: 'vehicle' | 'offer' | 'request'
+	name: string
+}
+type VehiclePosition = Position & { userId: string }
 export default function Map({
-	positions,
+	vehiclePositions,
+	offerPositions,
+	requestPositions,
 	base,
 }: {
+	vehiclePositions: VehiclePosition[]
+	offerPositions: Position[]
+	requestPositions: Position[]
 	base: {
 		latitude: number
 		longitude: number
 	}
-	positions: {
-		latitude: number | null
-		longitude: number | null
-		username: string
-		type: string
-		name: string
-	}[]
 }) {
 	let basePosition = [base.latitude, base.longitude] as [number, number]
 
@@ -34,20 +40,62 @@ export default function Map({
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
-			{positions
+			{vehiclePositions
+				.filter((position) => position.latitude && position.longitude)
+				.map((position, index) => {
+					return (
+						// <Marker
+						// 	key={`vehicle-${index}`}
+						// 	position={[position.latitude!, position.longitude!]}
+						// 	icon={vehicleIcon}
+						// >
+						// 	<Popup className="">
+						// 		<div>
+						// 			<p>{position.userId}</p>
+						// 			<p>{position.name}</p>
+						// 			<p>{position.username}</p>
+						// 			<p>{position.type}</p>
+						// 		</div>
+						// 	</Popup>
+						// </Marker>
+						<VehicleMarker
+							key={position.userId}
+							position={[position.latitude!, position.longitude!]}
+							userId={position.userId}
+							vehicleName={position.name}
+							username={position.username}
+						/>
+					)
+				})}
+
+			{offerPositions
 				.filter((position) => position.latitude && position.longitude)
 				.map((position, index) => {
 					return (
 						<Marker
-							key={index}
+							key={`offer-${index}`}
 							position={[position.latitude!, position.longitude!]}
-							icon={
-								position.type === 'vehicle'
-									? vehicleIcon
-									: position.type === 'offer'
-										? offerIcon
-										: requestIcon
-							}
+							icon={offerIcon}
+						>
+							<Popup className="bg-background">
+								<div>
+									<p>{position.name}</p>
+									<p>{position.username}</p>
+									<p>{position.type}</p>
+								</div>
+							</Popup>
+						</Marker>
+					)
+				})}
+
+			{requestPositions
+				.filter((position) => position.latitude && position.longitude)
+				.map((position, index) => {
+					return (
+						<Marker
+							key={`request-${index}`}
+							position={[position.latitude!, position.longitude!]}
+							icon={requestIcon}
 						>
 							<Popup className="bg-background">
 								<div>
@@ -62,6 +110,66 @@ export default function Map({
 
 			<BaseMarker position={basePosition} />
 		</MapContainer>
+	)
+}
+function VehicleMarker({
+	position,
+	userId,
+	vehicleName,
+	username,
+}: {
+	position: [number, number]
+	userId: string
+	vehicleName: string
+	username: string
+}) {
+	const fetcher = useFetcher()
+	const [draggable, setDraggable] = useState(false)
+
+	const markerRef = useRef<LeafletMarker | null>(null)
+	const eventHandlers = useMemo(
+		() => ({
+			dragend() {
+				const marker = markerRef.current
+				if (marker != null) {
+					const newPos = marker.getLatLng()
+
+					fetcher.submit(
+						{
+							table: 'vehicle',
+							userId,
+							latitude: newPos.lat.toString(),
+							longitude: newPos.lng.toString(),
+						},
+						{ method: 'post' },
+					)
+				}
+			},
+		}),
+		[fetcher, userId],
+	)
+	const toggleDraggable = useCallback(() => {
+		setDraggable((d) => !d)
+	}, [])
+
+	return (
+		<Marker
+			draggable={draggable}
+			eventHandlers={eventHandlers}
+			position={position as [number, number]}
+			icon={vehicleIcon}
+			ref={markerRef}
+		>
+			<Popup minWidth={90}>
+				<p>{vehicleName}</p>
+				<p>{username}</p>
+				<Button onClick={toggleDraggable}>
+					{draggable
+						? 'Vehicle is draggable'
+						: 'Click here to make vehicle draggable'}
+				</Button>
+			</Popup>
+		</Marker>
 	)
 }
 
@@ -79,6 +187,7 @@ function BaseMarker({ position }: { position: [number, number] }) {
 
 					fetcher.submit(
 						{
+							table: 'base',
 							latitude: newPos.lat.toString(),
 							longitude: newPos.lng.toString(),
 						},
@@ -87,7 +196,7 @@ function BaseMarker({ position }: { position: [number, number] }) {
 				}
 			},
 		}),
-		[],
+		[fetcher],
 	)
 	const toggleDraggable = useCallback(() => {
 		setDraggable((d) => !d)

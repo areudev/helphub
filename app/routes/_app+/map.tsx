@@ -16,6 +16,7 @@ const LazyMap = lazy(() => import('#app/components/map.tsx'))
 export async function action({ request }: ActionFunctionArgs) {
 	await requireUserWithRole(request, 'admin')
 	const formData = await request.formData()
+	const table = formData.get('table')
 	const latitude = formData.get('latitude')
 	const longitude = formData.get('longitude')
 
@@ -23,23 +24,40 @@ export async function action({ request }: ActionFunctionArgs) {
 		return json({ error: 'Invalid latitude or longitude' }, { status: 400 })
 	}
 
-	const base = await prisma.base.findFirst({
-		select: { id: true },
-	})
+	if (table === 'base') {
+		const base = await prisma.base.findFirst({
+			select: { id: true },
+		})
+		invariantResponse(base, 'Base not found')
 
-	invariantResponse(base, 'Base not found')
+		await prisma.base.update({
+			where: { id: base.id },
+			data: {
+				latitude: parseFloat(latitude),
+				longitude: parseFloat(longitude),
+			},
+		})
+	}
 
-	await prisma.base.update({
-		where: { id: base.id },
-		data: {
-			latitude: parseFloat(latitude),
-			longitude: parseFloat(longitude),
-		},
-	})
+	if (table === 'vehicle') {
+		const userId = formData.get('userId')
+
+		invariantResponse(userId, 'User not found')
+		if (typeof userId !== 'string') {
+			return json({ error: 'Invalid user id' }, { status: 400 })
+		}
+		await prisma.user.update({
+			where: { id: userId },
+			data: {
+				latitude: parseFloat(latitude),
+				longitude: parseFloat(longitude),
+			},
+		})
+	}
 
 	return json({ success: true })
 }
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({}: LoaderFunctionArgs) {
 	const base = await prisma.base.findFirst({
 		select: {
 			latitude: true,
@@ -53,6 +71,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			id: true,
 			user: {
 				select: {
+					id: true,
 					username: true,
 					latitude: true,
 					longitude: true,
@@ -90,39 +109,43 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 export default function MapRoute() {
 	const { vehicles, offers, requests, base } = useLoaderData<typeof loader>()
-	const allPositions = [
-		...vehicles.map((vehicle) => ({
-			latitude: vehicle.user.latitude,
-			longitude: vehicle.user.longitude,
-			username: vehicle.user.username,
-			type: 'vehicle',
-			name: vehicle.name,
-		})),
-		...offers.map((offer) => ({
-			latitude: offer.user.latitude,
-			longitude: offer.user.longitude,
-			username: offer.user.username,
-			type: 'offer',
-			name: offer.item.name,
-		})),
-		...requests.map((request) => ({
-			latitude: request.user.latitude,
-			longitude: request.user.longitude,
-			username: request.user.username,
-			type: 'request',
-			name: request.item.name,
-		})),
-	]
+	const vehiclePositions = vehicles.map((vehicle) => ({
+		userId: vehicle.user.id,
+		latitude: vehicle.user.latitude,
+		longitude: vehicle.user.longitude,
+		username: vehicle.user.username,
+		type: 'vehicle' as const,
+		name: vehicle.name,
+	}))
+	const offerPositions = offers.map((offer) => ({
+		latitude: offer.user.latitude,
+		longitude: offer.user.longitude,
+		username: offer.user.username,
+		type: 'offer' as const,
+		name: offer.item.name,
+	}))
+	const requestPositions = requests.map((request) => ({
+		latitude: request.user.latitude,
+		longitude: request.user.longitude,
+		username: request.user.username,
+		type: 'request' as const,
+		name: request.item.name,
+	}))
+
 	return (
 		<div className="container mx-auto max-w-4xl space-y-8 px-4 py-8">
 			<h1 className="text-h3">Map</h1>
 
-			{/* <Geolocation /> */}
 			<div className="h-[600px]">
 				<ClientOnly fallback={<p>Loading map...</p>}>
 					{() => (
 						<Suspense fallback={<div>Loading map...</div>}>
-							<LazyMap positions={allPositions} base={base} />
+							<LazyMap
+								vehiclePositions={vehiclePositions}
+								offerPositions={offerPositions}
+								requestPositions={requestPositions}
+								base={base}
+							/>
 						</Suspense>
 					)}
 				</ClientOnly>
