@@ -60,6 +60,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	}
 	const { capacity, name } = submission.value
 	await prisma.vehicle.create({
+		select: { id: true },
 		data: { userId, capacity, name, status: 'inactive' },
 	})
 	return redirect(`/users/${userId}/vehicle`)
