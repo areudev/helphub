@@ -3,14 +3,38 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { dummyPositions, patrasCenter } from '#app/utils/locations.ts'
 
-const baseIcon = L.icon({
-	iconUrl: '/img/user.svg',
+const vehicleIcon = L.icon({
+	iconUrl: '/img/rocket.svg',
 	iconSize: [32, 32],
 	iconAnchor: [12, 41],
 	popupAnchor: [1, -34],
 })
 
-export default function Map() {
+const offerIcon = L.icon({
+	iconUrl: '/img/mark-aid.svg',
+	iconSize: [32, 32],
+	iconAnchor: [12, 41],
+	popupAnchor: [1, -34],
+})
+
+const requestIcon = L.icon({
+	iconUrl: '/img/mark-x.svg',
+	iconSize: [32, 32],
+	iconAnchor: [12, 41],
+	popupAnchor: [1, -34],
+})
+
+export default function Map({
+	positions,
+}: {
+	positions: {
+		latitude: number | null
+		longitude: number | null
+		username: string
+		type: string
+		name: string
+	}[]
+}) {
 	return (
 		<MapContainer
 			className="h-full w-full"
@@ -22,15 +46,23 @@ export default function Map() {
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
-			{dummyPositions.map((position, index) => {
-				return (
-					<Marker
-						key={index}
-						position={[position.latitude, position.longitude]}
-						icon={baseIcon}
-					/>
-				)
-			})}
+			{positions
+				.filter((position) => position.latitude && position.longitude)
+				.map((position, index) => {
+					return (
+						<Marker
+							key={index}
+							position={[position.latitude!, position.longitude!]}
+							icon={
+								position.type === 'vehicle'
+									? vehicleIcon
+									: position.type === 'offer'
+										? offerIcon
+										: requestIcon
+							}
+						/>
+					)
+				})}
 		</MapContainer>
 	)
 }

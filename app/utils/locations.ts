@@ -32,6 +32,11 @@ export const dummyPositions = [
 	{ latitude: 38.04201844526803, longitude: 21.44969778773879 },
 	{ latitude: 38.10708738646101, longitude: 21.784023610957185 },
 	{ latitude: 38.19156326787096, longitude: 21.804957707743004 },
+	{ latitude: 38.16364804395653, longitude: 21.728546449944645 },
+	{ latitude: 38.04385242421566, longitude: 21.695519592963727 },
+	{ latitude: 38.12047969949003, longitude: 21.931236961346837 },
+	{ latitude: 38.0572184796295, longitude: 21.75111428266655 },
+	{ latitude: 38.07589562278406, longitude: 21.798747841082463 },
 ]
 
 export function generateRandomPositions(
@@ -75,4 +80,4 @@ export function generateRandomPositions(
 	return positions
 }
 
-const randomPositions = generateRandomPositions(patrasCenter, 10, 5)
+// const randomPositions = generateRandomPositions(patrasCenter, 10, 5)
