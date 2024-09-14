@@ -121,7 +121,7 @@ async function seed() {
 							id: item.id,
 							name: item.name,
 							inventory: {
-								create: { quantity: faker.number.int({ min: 1, max: 10 }) },
+								create: { quantity: faker.number.int({ min: 30, max: 60 }) },
 							},
 							details: {
 								create: item.details.map((detail) => ({
@@ -176,7 +176,7 @@ async function seed() {
 						? {
 								offers: {
 									create: {
-										quantity: faker.number.int({ min: 1, max: 10 }),
+										quantity: faker.number.int({ min: 1, max: 6 }),
 										announcement: {
 											connect: {
 												id: faker.helpers.arrayElement(dummyData.announcements)
@@ -195,7 +195,7 @@ async function seed() {
 								requests: {
 									create: {
 										itemId: faker.helpers.arrayElement(dummyData.items).id,
-										quantity: faker.number.int({ min: 1, max: 10 }),
+										quantity: faker.number.int({ min: 1, max: 6 }),
 										numberOfPeople: faker.number.int({ min: 1, max: 5 }),
 										notes: faker.lorem.paragraph(),
 									},

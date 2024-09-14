@@ -6,7 +6,7 @@ import 'leaflet/dist/leaflet.css'
 import { type loader } from '#app/routes/rescuer+/map.tsx'
 import { patrasCenter } from '#app/utils/locations.ts'
 import { offerIcon, requestIcon, taskIcon, vehicleIcon } from './admin-map.tsx'
-import { Button } from './ui/button'
+import { Button } from './ui/button.tsx'
 
 export default function RescuerMap() {
 	const { vehicles, userId, offers, requests } = useLoaderData<typeof loader>()
