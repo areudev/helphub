@@ -1,4 +1,4 @@
-import { useFetcher, useLoaderData } from '@remix-run/react'
+import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 import L, { type Marker as LeafletMarker } from 'leaflet'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
@@ -64,32 +64,59 @@ export default function RescuerMap() {
 					</Popup>
 				</Marker>
 			))}
-			{currentRescuerTasksOffers.map((task) => (
+			{currentRescuerTasksRequests.map((requesttask) => (
 				<Marker
-					key={task.id}
-					position={[task.user.latitude!, task.user.longitude!]}
+					key={requesttask.id}
+					position={[requesttask.user.latitude!, requesttask.user.longitude!]}
 					icon={taskIcon}
-				/>
+				>
+					<Popup>
+						<p>{requesttask.item.name}</p>
+						<p>{requesttask.quantity}</p>
+						<Button asChild>
+							<Link
+								className="text-foreground"
+								to={`/users/${currentRescuerVehicle.user.username}/tasks/${requesttask.task?.id}`}
+							>
+								View
+							</Link>
+						</Button>
+					</Popup>
+				</Marker>
 			))}
-			{otherRescuerTasksOffers.map((task) => (
+			{currentRescuerTasksOffers.map((offertask) => (
 				<Marker
-					key={task.id}
-					position={[task.user.latitude!, task.user.longitude!]}
+					key={offertask.id}
+					position={[offertask.user.latitude!, offertask.user.longitude!]}
+					icon={taskIcon}
+				>
+					<Popup>
+						<p>{offertask.item.name}</p>
+						<p>{offertask.quantity}</p>
+						<Button asChild>
+							<Link
+								className="text-foreground"
+								to={`/users/${currentRescuerVehicle.user.username}/tasks/${offertask.task?.id}`}
+							>
+								View
+							</Link>
+						</Button>
+					</Popup>
+				</Marker>
+			))}
+			{otherRescuerTasksOffers.map((offertask) => (
+				<Marker
+					key={offertask.id}
+					position={[offertask.user.latitude!, offertask.user.longitude!]}
 					icon={taskIcon}
 					opacity={0.6}
 				/>
 			))}
-			{currentRescuerTasksRequests.map((task) => (
+
+			{otherRescuerTasksRequests.map((requesttask) => (
 				<Marker
-					key={task.id}
-					position={[task.user.latitude!, task.user.longitude!]}
-					icon={taskIcon}
-				/>
-			))}
-			{otherRescuerTasksRequests.map((task) => (
-				<Marker
-					key={task.id}
-					position={[task.user.latitude!, task.user.longitude!]}
+					key={requesttask.id}
+					position={[requesttask.user.latitude!, requesttask.user.longitude!]}
 					icon={taskIcon}
 					opacity={0.6}
 				/>
@@ -111,6 +138,7 @@ export default function RescuerMap() {
 		</MapContainer>
 	)
 }
+
 function CurrentVehicleMarker() {
 	const { userId, vehicles } = useLoaderData<typeof loader>()
 	const currentRescuerVehicle = vehicles.find(
@@ -126,7 +154,6 @@ function CurrentVehicleMarker() {
 				const marker = markerRef.current
 				if (marker != null) {
 					const newPos = marker.getLatLng()
-					console.log(newPos)
 					fetcher.submit(
 						{
 							table: 'vehicle',

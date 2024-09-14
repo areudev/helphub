@@ -13,19 +13,31 @@ export async function action({ request }: ActionFunctionArgs) {
 	const userId = await requireUserWithRole(request, 'rescuer')
 
 	const formData = await request.formData()
-	const latitude = formData.get('latitude')
-	const longitude = formData.get('longitude')
+	const table = formData.get('table')
 
-	if (typeof latitude !== 'string' || typeof longitude !== 'string') {
-		return json({ error: 'Invalid latitude or longitude' }, { status: 400 })
+	if (typeof table !== 'string') {
+		return json({ error: 'Invalid table' }, { status: 400 })
 	}
 
-	await prisma.user.update({
-		where: { id: userId },
-		data: { latitude: parseFloat(latitude), longitude: parseFloat(longitude) },
-	})
+	if (table === 'vehicle') {
+		const latitude = formData.get('latitude')
+		const longitude = formData.get('longitude')
 
-	return json({ success: true })
+		if (typeof latitude !== 'string' || typeof longitude !== 'string') {
+			return json({ error: 'Invalid latitude or longitude' }, { status: 400 })
+		}
+
+		await prisma.user.update({
+			where: { id: userId },
+			data: {
+				latitude: parseFloat(latitude),
+				longitude: parseFloat(longitude),
+			},
+		})
+		return json({ success: true })
+	}
+
+	return json({ success: false, error: 'Invalid table' }, { status: 400 })
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -51,7 +63,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			id: true,
 			item: { select: { name: true } },
 			user: { select: { username: true, latitude: true, longitude: true } },
-			task: { select: { id: true, rescuerId: true } },
+			task: { select: { id: true, rescuerId: true, status: true } },
 			quantity: true,
 			createdAt: true,
 		},
