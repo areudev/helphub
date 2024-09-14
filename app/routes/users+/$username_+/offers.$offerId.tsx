@@ -24,6 +24,7 @@ import { StatusButton } from '#app/components/ui/status-button.tsx'
 import { requireUserId } from '#app/utils/auth.server.ts'
 import { prisma } from '#app/utils/db.server.ts'
 import { useIsPending } from '#app/utils/misc.tsx'
+import { getOfferOrRequestStatus } from '#app/utils/status.ts'
 import { redirectWithToast } from '#app/utils/toast.server.ts'
 import { useOptionalUser } from '#app/utils/user.ts'
 
@@ -38,9 +39,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
 			announcement: { select: { content: true } },
 			quantity: true,
 			userId: true,
-			status: true,
 			notes: true,
 			updatedAt: true,
+			task: { select: { status: true } },
 		},
 	})
 
@@ -130,14 +131,9 @@ export default function OfferRoute() {
 					</div>
 					<div className="flex items-center justify-between">
 						<span className="text-lg font-semibold">Status:</span>
-						<Badge
-							className="text-body-sm"
-							variant={
-								data.offer.status !== 'declined' ? 'secondary' : 'destructive'
-							}
-						>
+						<Badge className="text-body-sm">
 							{/* "pending", "approved", "received" */}
-							{data.offer.status}
+							{getOfferOrRequestStatus(data.offer.task?.status)}
 						</Badge>
 					</div>
 					<div className="rounded-lg bg-muted p-4">

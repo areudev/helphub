@@ -116,10 +116,11 @@ app.use(
 					MODE === 'development' ? 'ws:' : null,
 					process.env.SENTRY_DSN ? '*.sentry.io' : null,
 					"'self'",
+					'*.openstreetmap.org',
 				].filter(Boolean),
 				'font-src': ["'self'"],
 				'frame-src': ["'self'"],
-				'img-src': ["'self'", 'data:'],
+				'img-src': ["'self'", 'data:', '*.openstreetmap.org'],
 				'script-src': [
 					"'strict-dynamic'",
 					"'self'",

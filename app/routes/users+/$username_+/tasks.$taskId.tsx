@@ -47,8 +47,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
 	const date = new Date(task.updatedAt)
 	const timeAgo = formatDistanceToNow(date)
-	// the task can have either a request or an offer
-	//
+
 	if (task.requestId) {
 		const request = await prisma.request.findUnique({
 			where: { id: task.requestId },
@@ -108,6 +107,8 @@ export async function action({ request }: ActionFunctionArgs) {
 	const task = await prisma.task.findFirst({
 		select: {
 			id: true,
+			requestId: true,
+			offerId: true,
 			rescuer: { select: { username: true, id: true } },
 		},
 		where: { id: taskId },
@@ -154,7 +155,12 @@ export default function TaskRoute() {
 						<span className="text-lg font-semibold">Status:</span>
 						<Badge className="text-body-sm">{task.status}</Badge>
 					</div>
-
+					{task.description && (
+						<div className="rounded-lg bg-muted p-4">
+							<h4 className="mb-2 font-semibold">Description:</h4>
+							<p className="text-muted-foreground">{task.description}</p>
+						</div>
+					)}
 					<div className="flex items-center justify-between text-sm text-muted-foreground">
 						<span>Last updated:</span>
 						<span>{timeAgo} ago</span>
@@ -167,6 +173,11 @@ export default function TaskRoute() {
 							View the user {taskType}
 						</Link>
 					</Button>
+					{canDelete ? (
+						<Button asChild>
+							<Link to={`edit`}>Edit Task</Link>
+						</Button>
+					) : null}
 					{canDelete ? <DeleteRequest id={data.task.id} /> : null}
 				</CardFooter>
 			</Card>

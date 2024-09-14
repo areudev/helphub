@@ -59,7 +59,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	const offers = await prisma.offer.findMany({
 		select: {
 			id: true,
-			status: true,
 			quantity: true,
 			item: { select: { name: true } },
 			user: {
@@ -78,7 +77,6 @@ function OfferRow({
 }: {
 	offer: {
 		id: string
-		status: string
 		quantity: number
 		item: { name: string }
 		user: { username: string }
@@ -91,7 +89,7 @@ function OfferRow({
 			<TableCell className="font-medium">{offer.item.name}</TableCell>
 			<TableCell className="text-center">{offer.user.username}</TableCell>
 			<TableCell className="text-center">{offer.quantity}</TableCell>
-			<TableCell className="text-center">{offer.status}</TableCell>
+			{/* <TableCell className="text-center">{offer.status}</TableCell> */}
 			<TableCell className="text-center">
 				{offer.announcement.content}
 			</TableCell>
@@ -162,7 +160,7 @@ export default function AdminOffersRoute() {
 							<TableHead className="text-center">Item Name</TableHead>
 							<TableHead className="text-center">User</TableHead>
 							<TableHead className="text-center">Quantity</TableHead>
-							<TableHead className="text-center">Status</TableHead>
+							{/* <TableHead className="text-center">Status</TableHead> */}
 							<TableHead className="text-center">Announcement</TableHead>
 							<TableHead className="text-center">Actions</TableHead>
 						</TableRow>

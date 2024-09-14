@@ -13,6 +13,29 @@ import {
 import { insertGitHubUser } from '#tests/mocks/github.ts'
 import dummyData from './dummy.json'
 
+const dummyPositions = [
+	{ latitude: 38.246639, longitude: 21.734573 },
+	{ latitude: 38.27973314738955, longitude: 21.76889308222365 },
+	{ latitude: 38.30827797135121, longitude: 21.807143999339814 },
+	{ latitude: 38.20870136926265, longitude: 21.767370300348965 },
+	{ latitude: 38.18577825500854, longitude: 21.700383421056245 },
+	{ latitude: 38.1708438469576, longitude: 21.456267194043285 },
+	{ latitude: 38.14066837382343, longitude: 21.555111748474655 },
+	{ latitude: 38.10500834226745, longitude: 21.469817848568383 },
+	{ latitude: 38.053167419998864, longitude: 21.381434744395275 },
+	{ latitude: 38.04201844526803, longitude: 21.44969778773879 },
+	{ latitude: 38.10708738646101, longitude: 21.784023610957185 },
+	{ latitude: 38.19156326787096, longitude: 21.804957707743004 },
+	{ latitude: 38.16364804395653, longitude: 21.728546449944645 },
+	{ latitude: 38.04385242421566, longitude: 21.695519592963727 },
+	{ latitude: 38.12047969949003, longitude: 21.931236961346837 },
+	{ latitude: 38.0572184796295, longitude: 21.75111428266655 },
+	{ latitude: 38.07589562278406, longitude: 21.798747841082463 },
+]
+const kodyPosition = dummyPositions[0]
+const rescuerPositions = dummyPositions.slice(1, 6)
+const userPositions = dummyPositions.slice(6)
+
 async function seed() {
 	console.log('🌱 Seeding...')
 	console.time(`🌱 Database has been seeded`)
@@ -20,6 +43,18 @@ async function seed() {
 	console.time('🧹 Cleaned up the database...')
 	await cleanupDb(prisma)
 	console.timeEnd('🧹 Cleaned up the database...')
+
+	const warehousePosition: [number, number] = [
+		38.24200983952633, 21.736916818180042,
+	]
+	console.time('🏢 Created base...')
+	await prisma.base.create({
+		data: {
+			latitude: warehousePosition[0],
+			longitude: warehousePosition[1],
+		},
+	})
+	console.timeEnd('🏢 Created base...')
 
 	console.time('🔑 Created permissions...')
 	const entities = ['user', 'note']
@@ -115,66 +150,98 @@ async function seed() {
 	}
 	console.timeEnd('📦 Created categories, items, and announcements...')
 
-	const totalUsers = 7
+	const totalUsers = 10
 	const totalRescuers = 3
 	console.time(
 		`👤 Created ${totalUsers} users and ${totalRescuers} rescuers...`,
 	)
+
 	const noteImages = await getNoteImages()
 	const userImages = await getUserImages()
 
 	for (let index = 0; index < totalUsers; index++) {
 		const userData = createUser()
+		const offerOrRequest = faker.number.int({ min: 0, max: 1 })
 		await prisma.user
 			.create({
 				select: { id: true },
 				data: {
 					...userData,
+					latitude: userPositions[index]?.latitude,
+					longitude: userPositions[index]?.longitude,
 					password: { create: createPassword(userData.username) },
 					image: { create: userImages[index % userImages.length] },
 					roles: { connect: { name: 'user' } },
-					offers: {
-						create: Array.from({
-							length: faker.number.int({ min: 2, max: 5 }),
-						}).map(() => {
-							const announcement = faker.helpers.arrayElement(
-								dummyData.announcements,
-							)
-							const announcementItem = faker.helpers.arrayElement(
-								announcement.items,
-							)
-							return {
-								quantity: faker.number.int({
-									min: 1,
-									max: 10,
-								}),
-								status: 'pending',
-								announcement: {
-									connect: { id: announcement.id },
-								},
-								item: {
-									connect: { id: announcementItem.itemId },
+					...(offerOrRequest === 0
+						? {
+								offers: {
+									create: {
+										quantity: faker.number.int({ min: 1, max: 10 }),
+										announcement: {
+											connect: {
+												id: faker.helpers.arrayElement(dummyData.announcements)
+													.id,
+											},
+										},
+										item: {
+											connect: {
+												id: faker.helpers.arrayElement(dummyData.items).id,
+											},
+										},
+									},
 								},
 							}
-						}),
-					},
-					requests: {
-						create: Array.from({
-							length: faker.number.int({ min: 2, max: 5 }),
-						}).map(() => {
-							const item = faker.helpers.arrayElement(dummyData.items)
-							const quantity = faker.number.int({ min: 1, max: 10 })
-							const numberOfPeople = faker.number.int({ min: 1, max: 5 })
-							const note = faker.lorem.paragraph()
-							return {
-								itemId: item.id,
-								quantity,
-								numberOfPeople,
-								status: 'pending',
-								notes: note,
-							}
-						}),
-					},
+						: {
+								requests: {
+									create: {
+										itemId: faker.helpers.arrayElement(dummyData.items).id,
+										quantity: faker.number.int({ min: 1, max: 10 }),
+										numberOfPeople: faker.number.int({ min: 1, max: 5 }),
+										notes: faker.lorem.paragraph(),
+									},
+								},
+							}),
+
+					// offers: {
+					// 	create: Array.from({
+					// 		length: faker.number.int({ min: 2, max: 5 }),
+					// 	}).map(() => {
+					// 		const announcement = faker.helpers.arrayElement(
+					// 			dummyData.announcements,
+					// 		)
+					// 		const announcementItem = faker.helpers.arrayElement(
+					// 			announcement.items,
+					// 		)
+					// 		return {
+					// 			quantity: faker.number.int({
+					// 				min: 1,
+					// 				max: 10,
+					// 			}),
+					// 			announcement: {
+					// 				connect: { id: announcement.id },
+					// 			},
+					// 			item: {
+					// 				connect: { id: announcementItem.itemId },
+					// 			},
+					// 		}
+					// 	}),
+					// },
+					// requests: {
+					// 	create: Array.from({
+					// 		length: faker.number.int({ min: 2, max: 5 }),
+					// 	}).map(() => {
+					// 		const item = faker.helpers.arrayElement(dummyData.items)
+					// 		const quantity = faker.number.int({ min: 1, max: 10 })
+					// 		const numberOfPeople = faker.number.int({ min: 1, max: 5 })
+					// 		const note = faker.lorem.paragraph()
+					// 		return {
+					// 			itemId: item.id,
+					// 			quantity,
+					// 			numberOfPeople,
+					// 			notes: note,
+					// 		}
+					// 	}),
+					// },
 					notes: {
 						create: Array.from({
 							length: faker.number.int({ min: 1, max: 3 }),
@@ -205,11 +272,12 @@ async function seed() {
 
 	for (let index = 0; index < totalRescuers; index++) {
 		const rescuerData = createUser()
-		const requests = await prisma.request.findFirstOrThrow({
+		const request = await prisma.request.findFirstOrThrow({
 			select: { id: true },
 			where: { task: { is: null } },
 		})
-		const offers = await prisma.offer.findFirstOrThrow({
+
+		const offer = await prisma.offer.findFirstOrThrow({
 			select: { id: true },
 			where: { task: { is: null } },
 		})
@@ -219,14 +287,23 @@ async function seed() {
 				select: { id: true },
 				data: {
 					...rescuerData,
+					latitude: rescuerPositions[index]?.latitude,
+					longitude: rescuerPositions[index]?.longitude,
+					vehicle: {
+						create: {
+							name: faker.vehicle.model(),
+							capacity: faker.number.int({ min: 1, max: 10 }),
+							status: 'available',
+						},
+					},
 					password: { create: createPassword(rescuerData.username) },
 					image: { create: userImages[index % userImages.length] },
 					roles: { connect: [{ name: 'rescuer' }, { name: 'user' }] },
 					tasks: {
 						createMany: {
 							data: [
-								{ requestId: requests.id, status: 'pending' },
-								{ offerId: offers.id, status: 'pending' },
+								{ requestId: request.id, status: 'pending' },
+								{ offerId: offer.id, status: 'pending' },
 							],
 						},
 					},
@@ -284,6 +361,15 @@ async function seed() {
 			email: 'kody@kcd.dev',
 			username: 'kody',
 			name: 'Kody',
+			latitude: kodyPosition?.latitude,
+			longitude: kodyPosition?.longitude,
+			vehicle: {
+				create: {
+					name: 'Mothership',
+					capacity: 420,
+					status: 'available',
+				},
+			},
 			image: { create: kodyImages.kodyUser },
 			password: { create: createPassword('kodylovesyou') },
 			connections: {

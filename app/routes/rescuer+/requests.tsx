@@ -77,7 +77,6 @@ function RequestRow({
 }: {
 	request: {
 		id: string
-		status: string
 		quantity: number
 		numberOfPeople: number
 		notes: string | null
@@ -95,7 +94,6 @@ function RequestRow({
 			<TableCell>{request.item.name}</TableCell>
 			<TableCell>{request.quantity}</TableCell>
 			<TableCell>{request.numberOfPeople}</TableCell>
-			<TableCell>{request.status}</TableCell>
 			<TableCell>{request.notes}</TableCell>
 			<TableCell className="flex justify-center gap-2">
 				{request.task ? (
@@ -121,8 +119,7 @@ export default function AdminRequestsRoute() {
 	const filteredRequests = requests.filter(
 		(request) =>
 			request.user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			request.item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			request.status.toLowerCase().includes(searchTerm.toLowerCase()),
+			request.item.name.toLowerCase().includes(searchTerm.toLowerCase()),
 	)
 
 	return (
@@ -148,7 +145,6 @@ export default function AdminRequestsRoute() {
 							<TableHead className="text-center">Item</TableHead>
 							<TableHead className="text-center">Quantity</TableHead>
 							<TableHead className="text-center">Number of People</TableHead>
-							<TableHead className="text-center">Status</TableHead>
 							<TableHead className="text-center">Notes</TableHead>
 							<TableHead className="text-center">Actions</TableHead>
 						</TableRow>

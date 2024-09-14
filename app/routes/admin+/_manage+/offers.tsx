@@ -14,10 +14,8 @@ import { useFetcher, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
 import { z } from 'zod'
 import { ErrorList, Field } from '#app/components/forms.tsx'
-import { SelectField } from '#app/components/select-field.js'
 import { Button } from '#app/components/ui/button.tsx'
 import { Input } from '#app/components/ui/input.tsx'
-import { Label } from '#app/components/ui/label.js'
 import {
 	Popover,
 	PopoverContent,
@@ -34,11 +32,10 @@ import {
 } from '#app/components/ui/table.tsx'
 import { prisma } from '#app/utils/db.server.ts'
 import { requireUserWithRole } from '#app/utils/permissions.server.ts'
-import { OfferStatus } from '#app/utils/status.ts'
+import { getOfferOrRequestStatus } from '#app/utils/status.ts'
 
 const OfferSchema = z.object({
 	id: z.string(),
-	status: OfferStatus,
 	quantity: z.number(),
 })
 
@@ -74,14 +71,11 @@ async function editAction({
 	if (submission.status !== 'success') {
 		return json({ result: submission.reply() }, { status: 400 })
 	}
-	const { id, status, quantity } = submission.value
+	const { id, quantity } = submission.value
 
 	await prisma.offer.update({
 		where: { id },
-		data: {
-			status,
-			quantity,
-		},
+		data: { quantity },
 	})
 
 	return json({ result: submission.reply() })
@@ -108,10 +102,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	await requireUserWithRole(request, 'admin')
 
 	const offers = await prisma.offer.findMany({
-		include: {
-			item: true,
-			user: true,
-			announcement: true,
+		// include: {
+		// 	item: true,
+		// 	user: true,
+		// 	announcement: true,
+		// },
+		select: {
+			id: true,
+			quantity: true,
+			task: {
+				select: {
+					status: true,
+				},
+			},
+			user: { select: { username: true } },
+			announcement: { select: { content: true } },
+			item: { select: { name: true } },
 		},
 	})
 
@@ -123,25 +129,21 @@ function OfferRow({
 }: {
 	offer: {
 		id: string
-		status: string
 		quantity: number
-		item: {
-			name: string
-		}
-		user: {
-			username: string
-		}
-		announcement: {
-			content: string
-		}
+		item: { name: string }
+		user: { username: string }
+		announcement: { content: string }
+		task: { status: string } | null
 	}
 }) {
+	let status = getOfferOrRequestStatus(offer.task?.status)
+
 	return (
 		<TableRow className="text-center" key={offer.id}>
 			<TableCell className="font-medium">{offer.item.name}</TableCell>
 			<TableCell className="text-center">{offer.user.username}</TableCell>
 			<TableCell className="text-center">{offer.quantity}</TableCell>
-			<TableCell className="text-center">{offer.status}</TableCell>
+			<TableCell className="text-center">{status}</TableCell>
 			<TableCell className="text-center">
 				{offer.announcement.content}
 			</TableCell>
@@ -157,7 +159,6 @@ function OfferRow({
 						<EditForm offer={offer} />
 					</PopoverContent>
 				</Popover>
-
 				<DeleteForm offerId={offer.id} />
 			</TableCell>
 		</TableRow>
@@ -169,7 +170,6 @@ function EditForm({
 }: {
 	offer: {
 		id: string
-		status: string
 		quantity: number
 	}
 }) {
@@ -182,27 +182,17 @@ function EditForm({
 			return parseWithZod(formData, { schema: OfferSchema })
 		},
 		defaultValue: {
-			status: offer.status,
 			quantity: offer.quantity,
 		},
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
 	})
+
 	return (
 		<FormProvider context={form.context}>
 			<fetcher.Form method="POST" {...getFormProps(form)}>
 				<input type="hidden" name="id" value={offer.id} />
-				<Label htmlFor={fields.status.id}>Status</Label>
-				<SelectField
-					label="Status"
-					name="status"
-					options={[
-						{ value: 'pending', label: 'Pending' },
-						{ value: 'approved', label: 'Approved' },
-						{ value: 'received', label: 'Received' },
-					]}
-				/>
-				<ErrorList errors={fields.status.errors} />
+
 				<Field
 					labelProps={{ children: 'Quantity' }}
 					inputProps={{ ...getInputProps(fields.quantity, { type: 'number' }) }}

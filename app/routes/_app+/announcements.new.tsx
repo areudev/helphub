@@ -77,6 +77,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	const { content, items } = submission.value
 
 	await prisma.announcement.create({
+		select: { id: true },
 		data: {
 			content,
 			items: {
