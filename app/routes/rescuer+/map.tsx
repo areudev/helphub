@@ -1,9 +1,32 @@
-import { prisma } from '#app/utils/db.server.ts'
-import { requireUserWithRole } from '#app/utils/permissions.server.ts'
-import { json, LoaderFunctionArgs } from '@remix-run/node'
+import {
+	ActionFunctionArgs,
+	json,
+	type LoaderFunctionArgs,
+} from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { lazy, Suspense } from 'react'
 import { ClientOnly } from 'remix-utils/client-only'
+import { prisma } from '#app/utils/db.server.ts'
+import { requireUserWithRole } from '#app/utils/permissions.server.ts'
+
+export async function action({ request }: ActionFunctionArgs) {
+	const userId = await requireUserWithRole(request, 'rescuer')
+
+	const formData = await request.formData()
+	const latitude = formData.get('latitude')
+	const longitude = formData.get('longitude')
+
+	if (typeof latitude !== 'string' || typeof longitude !== 'string') {
+		return json({ error: 'Invalid latitude or longitude' }, { status: 400 })
+	}
+
+	await prisma.user.update({
+		where: { id: userId },
+		data: { latitude: parseFloat(latitude), longitude: parseFloat(longitude) },
+	})
+
+	return json({ success: true })
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const userId = await requireUserWithRole(request, 'rescuer')
