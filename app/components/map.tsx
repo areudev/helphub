@@ -53,20 +53,6 @@ export default function Map({
 				.filter((position) => position.latitude && position.longitude)
 				.map((position) => {
 					return (
-						// <Marker
-						// 	key={`vehicle-${index}`}
-						// 	position={[position.latitude!, position.longitude!]}
-						// 	icon={vehicleIcon}
-						// >
-						// 	<Popup className="">
-						// 		<div>
-						// 			<p>{position.userId}</p>
-						// 			<p>{position.name}</p>
-						// 			<p>{position.username}</p>
-						// 			<p>{position.type}</p>
-						// 		</div>
-						// 	</Popup>
-						// </Marker>
 						<VehicleMarker
 							key={position.userId}
 							position={[position.latitude!, position.longitude!]}

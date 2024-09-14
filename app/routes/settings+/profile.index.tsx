@@ -39,6 +39,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			name: true,
 			username: true,
 			email: true,
+			latitude: true,
+			longitude: true,
 			image: {
 				select: { id: true },
 			},
@@ -158,6 +160,15 @@ export default function EditUserProfile() {
 				<div>
 					<Link to="connections">
 						<Icon name="link-2">Manage connections</Icon>
+					</Link>
+				</div>
+				<div>
+					<Link to="location">
+						<Icon name="sewing-pin">
+							{data.user.latitude && data.user.longitude
+								? 'Edit location'
+								: 'Set location'}
+						</Icon>
 					</Link>
 				</div>
 				<div>
