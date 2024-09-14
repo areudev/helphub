@@ -74,11 +74,6 @@ export default function ProfileRoute() {
 						{isLoggedInUser ? (
 							<>
 								<Button asChild>
-									<Link to="notes" prefetch="intent">
-										My notes
-									</Link>
-								</Button>
-								<Button asChild>
 									<Link to="offers" prefetch="intent">
 										My offers
 									</Link>
@@ -96,11 +91,6 @@ export default function ProfileRoute() {
 							</>
 						) : (
 							<>
-								<Button asChild>
-									<Link to="notes" prefetch="intent">
-										{userDisplayName}'s notes
-									</Link>
-								</Button>
 								<Button asChild>
 									<Link to="offers" prefetch="intent">
 										{userDisplayName}'s offers
@@ -123,10 +113,10 @@ export default function ProfileRoute() {
 export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
 	const displayName = data?.user.name ?? params.username
 	return [
-		{ title: `${displayName} | Epic Notes` },
+		{ title: `${displayName} | Help Hub` },
 		{
 			name: 'description',
-			content: `Profile of ${displayName} on Epic Notes`,
+			content: `Profile of ${displayName} on Help Hub`,
 		},
 	]
 }
