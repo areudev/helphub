@@ -7,12 +7,10 @@ import {
 import { useLoaderData } from '@remix-run/react'
 import { lazy, Suspense } from 'react'
 import { ClientOnly } from 'remix-utils/client-only'
-import { useGeolocation } from '#app/hooks/use-geolocation.tsx'
-import { getUserId } from '#app/utils/auth.server.ts'
 import { prisma } from '#app/utils/db.server.ts'
 import { requireUserWithRole } from '#app/utils/permissions.server.ts'
 
-const LazyMap = lazy(() => import('#app/components/map.tsx'))
+const LazyMap = lazy(() => import('#app/components/admin-map.tsx'))
 
 export async function action({ request }: ActionFunctionArgs) {
 	await requireUserWithRole(request, 'admin')
@@ -59,7 +57,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	return json({ success: true })
 }
 export async function loader({ request }: LoaderFunctionArgs) {
-	const userId = await getUserId(request)
+	await requireUserWithRole(request, 'admin')
 
 	const base = await prisma.base.findFirst({
 		select: {
@@ -108,11 +106,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			quantity: true,
 		},
 	})
-	return json({ vehicles, offers, requests, base, userId })
+	return json({ vehicles, offers, requests, base })
 }
 export default function MapRoute() {
-	const { vehicles, offers, requests, base, userId } =
-		useLoaderData<typeof loader>()
+	const { vehicles, offers, requests, base } = useLoaderData<typeof loader>()
 	const vehiclePositions = vehicles.map((vehicle) => ({
 		userId: vehicle.user.id,
 		latitude: vehicle.user.latitude,
@@ -150,7 +147,6 @@ export default function MapRoute() {
 								offerPositions={offerPositions}
 								requestPositions={requestPositions}
 								base={base}
-								userId={userId}
 							/>
 						</Suspense>
 					)}
@@ -159,54 +155,3 @@ export default function MapRoute() {
 		</div>
 	)
 }
-
-function Geolocation() {
-	const {
-		loading,
-		latitude,
-		longitude,
-		error,
-		accuracy,
-		speed,
-		altitude,
-		altitudeAccuracy,
-		heading,
-		timestamp,
-	} = useGeolocation()
-
-	if (loading) return <p>Loading...</p>
-	if (error) return <p>Error: {error.message}</p>
-
-	return (
-		<div>
-			<div>
-				<p>Latitude: {latitude}</p>
-				<p>Longitude: {longitude}</p>
-				<p>Accuracy: {accuracy}</p>
-				<p>Speed: {speed}</p>
-				<p>Altitude: {altitude}</p>
-				<p>Altitude Accuracy: {altitudeAccuracy}</p>
-				<p>Heading: {heading}</p>
-				<p>Timestamp: {timestamp}</p>
-			</div>
-		</div>
-	)
-}
-
-// const Map = lazy(() => import('#app/components/map.tsx'))
-
-// export default function MapRoute() {
-// 	// const isClient = useIsClient()
-
-// 	// if (!isClient) return null
-
-// 	return (
-// 		<div className="container mx-auto max-w-4xl space-y-8 px-4 py-8">
-// 			<h1 className="text-h3">Map</h1>
-// 			<Suspense fallback={<div>Loading map...</div>}>
-// 				<Map />
-// 			</Suspense>
-// 			<Geolocation />
-// 		</div>
-// 	)
-// }

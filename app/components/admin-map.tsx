@@ -13,10 +13,7 @@ type Position = {
 	type: 'vehicle' | 'offer' | 'request'
 	name: string
 }
-// type VehiclePosition = Position & {
-// 	userId: string
-// 	tasks: { status: string; requestId: string | null; offerId: string | null }
-// }
+
 type VehiclePosition = Position & {
 	userId: string
 	tasks: { status: string; requestId: string | null; offerId: string | null }[]
@@ -26,7 +23,6 @@ export default function Map({
 	offerPositions,
 	requestPositions,
 	base,
-	userId,
 }: {
 	vehiclePositions: VehiclePosition[]
 	offerPositions: Position[]
@@ -35,7 +31,6 @@ export default function Map({
 		latitude: number
 		longitude: number
 	}
-	userId: string | null
 }) {
 	let basePosition = [base.latitude, base.longitude] as [number, number]
 
@@ -60,7 +55,6 @@ export default function Map({
 							vehicleName={position.name}
 							username={position.username}
 							tasks={position.tasks}
-							loggedInUserId={userId}
 						/>
 					)
 				})}
@@ -115,14 +109,12 @@ function VehicleMarker({
 	vehicleName,
 	username,
 	tasks,
-	loggedInUserId,
 }: {
 	position: [number, number]
 	userId: string
 	vehicleName: string
 	username: string
 	tasks: { status: string; requestId: string | null; offerId: string | null }[]
-	loggedInUserId: string | null
 }) {
 	const fetcher = useFetcher()
 	const [draggable, setDraggable] = useState(false)
@@ -160,7 +152,6 @@ function VehicleMarker({
 			position={position as [number, number]}
 			icon={vehicleIcon}
 			ref={markerRef}
-			opacity={loggedInUserId === userId ? 1 : 0.5}
 		>
 			<Popup minWidth={90}>
 				<p>{vehicleName}</p>
