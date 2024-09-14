@@ -50,33 +50,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 const LazyMap = lazy(() => import('#app/components/rescuer-map.tsx'))
 export default function RescuerMap() {
-	const { vehicles, userId, offers, requests } = useLoaderData<typeof loader>()
-	// separate current rescuer vehicle from the others
-	const currentRescuerVehicle = vehicles.find(
-		(vehicle) => vehicle.user.id === userId,
-	)
-	if (!currentRescuerVehicle) {
-		return <div>You are not assigned to any vehicle</div>
-	}
-
-	// separate current rescuer tasks offers from the others
-	const currentRescuerTasksOffers = offers.filter(
-		(offer) => offer.task?.rescuerId === userId,
-	)
-
-	const otherRescuerTasksOffers = offers.filter(
-		(offer) => offer.task?.rescuerId !== userId,
-	)
-
-	const currentRescuerTasksRequests = requests.filter(
-		(request) => request.task?.rescuerId === userId,
-	)
-
-	const otherRescuerTasksRequests = requests.filter(
-		(request) => request.task?.rescuerId !== userId,
-	)
-
-	const otherVehicles = vehicles.filter((vehicle) => vehicle.user.id !== userId)
 	return (
 		<div className="container mx-auto max-w-4xl space-y-8 px-4 py-8">
 			<h1 className="text-h3">Rescuer Map</h1>
@@ -85,73 +58,11 @@ export default function RescuerMap() {
 				<ClientOnly fallback={<p>Loading map...</p>}>
 					{() => (
 						<Suspense fallback={<div>Loading map...</div>}>
-							<LazyMap
-								currentRescuerVehicle={currentRescuerVehicle}
-								otherVehicles={otherVehicles}
-								currentRescuerTasksOffers={currentRescuerTasksOffers}
-								otherRescuerTasksOffers={otherRescuerTasksOffers}
-								currentRescuerTasksRequests={currentRescuerTasksRequests}
-								otherRescuerTasksRequests={otherRescuerTasksRequests}
-							/>
+							<LazyMap />
 						</Suspense>
 					)}
 				</ClientOnly>
 			</div>
 		</div>
 	)
-}
-
-type RescuerVehicle = {
-	name: string
-	currentLoad: number
-	user: {
-		id: string
-		latitude: number | null
-		longitude: number | null
-		username: string
-	}
-}
-type RescuerTaskOffer = {
-	id: string
-	user: {
-		latitude: number | null
-		longitude: number | null
-		username: string
-	}
-	createdAt: string
-	quantity: number
-	item: {
-		name: string
-	}
-	task: {
-		id: string
-		rescuerId: string
-	} | null
-}
-
-type RescuerTaskRequest = {
-	id: string
-	user: {
-		latitude: number | null
-		longitude: number | null
-		username: string
-	}
-	createdAt: string
-	quantity: number
-	item: {
-		name: string
-	}
-	task: {
-		id: string
-		rescuerId: string
-	} | null
-}
-
-export type LazyMapProps = {
-	currentRescuerVehicle: RescuerVehicle
-	otherVehicles: RescuerVehicle[]
-	currentRescuerTasksOffers: RescuerTaskOffer[]
-	otherRescuerTasksOffers: RescuerTaskOffer[]
-	currentRescuerTasksRequests: RescuerTaskRequest[]
-	otherRescuerTasksRequests: RescuerTaskRequest[]
 }
