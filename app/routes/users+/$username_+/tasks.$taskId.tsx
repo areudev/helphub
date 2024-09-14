@@ -174,11 +174,16 @@ export default function TaskRoute() {
 						</Link>
 					</Button>
 					{canDelete ? (
-						<Button asChild>
-							<Link to={`edit`}>Edit Task</Link>
-						</Button>
+						<>
+							<Button asChild>
+								<Link to={`edit`}>Edit Task</Link>
+							</Button>
+							<Button asChild>
+								<Link to="/rescuer/map">View the Map</Link>
+							</Button>
+							<DeleteRequest id={data.task.id} />
+						</>
 					) : null}
-					{canDelete ? <DeleteRequest id={data.task.id} /> : null}
 				</CardFooter>
 			</Card>
 		</div>

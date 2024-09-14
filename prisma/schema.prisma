@@ -303,4 +303,6 @@ model AnnouncementItem {
   item           Item     @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   itemId         String
   quantity       Int
+  count     Int @default(0)
+  @@unique([announcementId, itemId])
 }

@@ -34,7 +34,16 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 			description: true,
 			status: true,
 			updatedAt: true,
-			rescuer: { select: { username: true, id: true } },
+			rescuer: {
+				select: { username: true, id: true, latitude: true, longitude: true },
+			},
+
+			request: {
+				select: { user: { select: { latitude: true, longitude: true } } },
+			},
+			offer: {
+				select: { user: { select: { latitude: true, longitude: true } } },
+			},
 		},
 	})
 
@@ -44,7 +53,24 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 		throw redirect(`/`)
 	}
 
-	return json({ task })
+	const taskUser = task.offerId ? task.offer?.user : task.request?.user
+
+	const distance =
+		taskUser &&
+		task.rescuer.latitude &&
+		task.rescuer.longitude &&
+		taskUser.latitude &&
+		taskUser.longitude
+			? calculateDistance(
+					task.rescuer.latitude,
+					task.rescuer.longitude,
+					taskUser.latitude,
+					taskUser.longitude,
+				)
+			: Infinity
+
+	const canComplete = distance < 500
+	return json({ task, canComplete })
 }
 
 const TaskEditSchema = z.object({
@@ -84,6 +110,49 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	const { taskId, description, status } = submission.value
 
+	const task = await prisma.task.findUnique({
+		where: { id: taskId },
+		select: {
+			id: true,
+			status: true,
+			offerId: true,
+			requestId: true,
+			offer: {
+				select: {
+					itemId: true,
+					quantity: true,
+					announcementId: true,
+				},
+			},
+			request: { select: { itemId: true, quantity: true } },
+		},
+	})
+
+	invariantResponse(task, 'Task not found', { status: 404 })
+
+	if (task.status !== 'completed' && status === 'completed') {
+		if (task.offerId) {
+			await prisma.inventory.update({
+				where: { itemId: task.offer?.itemId },
+				data: { quantity: { increment: task.offer?.quantity } },
+			})
+			await prisma.announcementItem.update({
+				where: {
+					announcementId_itemId: {
+						announcementId: task.offer!.announcementId,
+						itemId: task.offer!.itemId,
+					},
+				},
+				data: { count: { increment: task.offer?.quantity } },
+			})
+		} else if (task.requestId) {
+			await prisma.inventory.update({
+				where: { itemId: task.request!.itemId },
+				data: { quantity: { decrement: task.request!.quantity } },
+			})
+		}
+	}
+
 	const updatedTask = await prisma.task.update({
 		where: { id: taskId },
 		data: { description, status },
@@ -96,7 +165,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function TaskEdit() {
-	const { task } = useLoaderData<typeof loader>()
+	const { task, canComplete } = useLoaderData<typeof loader>()
 	const actionData = useActionData<typeof action>()
 	const [form, fields] = useForm({
 		id: 'task-edit-form',
@@ -130,6 +199,7 @@ export default function TaskEdit() {
 								(status) => ({
 									value: status,
 									label: status,
+									disabled: status === 'completed' && !canComplete,
 								}),
 							)}
 						/>
@@ -156,4 +226,28 @@ export default function TaskEdit() {
 			</div>
 		</div>
 	)
+}
+
+function toRadians(degrees: number): number {
+	return degrees * (Math.PI / 180)
+}
+
+export function calculateDistance(
+	lat1: number,
+	lon1: number,
+	lat2: number,
+	lon2: number,
+): number {
+	const R = 6371 // Earth's radius in km
+	const dLat = toRadians(lat2 - lat1)
+	const dLon = toRadians(lon2 - lon1)
+	const a =
+		Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+		Math.cos(toRadians(lat1)) *
+			Math.cos(toRadians(lat2)) *
+			Math.sin(dLon / 2) *
+			Math.sin(dLon / 2)
+	const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+	const distance = R * c
+	return distance * 1000 // Convert to meters
 }

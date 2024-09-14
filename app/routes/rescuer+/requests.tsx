@@ -105,7 +105,7 @@ function RequestRow({
 						</Link>
 					</Button>
 				) : (
-					<AddToTasksForm requestId={request.id} />
+					<AddRequestToTasksForm requestId={request.id} />
 				)}
 			</TableCell>
 		</TableRow>
@@ -160,7 +160,7 @@ export default function AdminRequestsRoute() {
 	)
 }
 
-function AddToTasksForm({ requestId }: { requestId: string }) {
+export function AddRequestToTasksForm({ requestId }: { requestId: string }) {
 	const [form, fields] = useForm({
 		id: `add-to-tasks-${requestId}`,
 		constraint: getZodConstraint(AddToTasksSchema),
@@ -169,7 +169,7 @@ function AddToTasksForm({ requestId }: { requestId: string }) {
 		},
 	})
 	return (
-		<Form method="POST" {...getFormProps(form)}>
+		<Form method="POST" action="/rescuer/requests" {...getFormProps(form)}>
 			<input type="hidden" name={fields.requestId.name} value={requestId} />
 			<Button type="submit" size="sm">
 				Add to Tasks

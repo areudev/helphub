@@ -13,20 +13,16 @@ type Position = {
 	type: 'vehicle' | 'offer' | 'request'
 	name: string
 }
-// type VehiclePosition = Position & {
-// 	userId: string
-// 	tasks: { status: string; requestId: string | null; offerId: string | null }
-// }
+
 type VehiclePosition = Position & {
 	userId: string
 	tasks: { status: string; requestId: string | null; offerId: string | null }[]
 }
-export default function Map({
+export default function AdminMap({
 	vehiclePositions,
 	offerPositions,
 	requestPositions,
 	base,
-	userId,
 }: {
 	vehiclePositions: VehiclePosition[]
 	offerPositions: Position[]
@@ -35,7 +31,6 @@ export default function Map({
 		latitude: number
 		longitude: number
 	}
-	userId: string | null
 }) {
 	let basePosition = [base.latitude, base.longitude] as [number, number]
 
@@ -53,20 +48,6 @@ export default function Map({
 				.filter((position) => position.latitude && position.longitude)
 				.map((position) => {
 					return (
-						// <Marker
-						// 	key={`vehicle-${index}`}
-						// 	position={[position.latitude!, position.longitude!]}
-						// 	icon={vehicleIcon}
-						// >
-						// 	<Popup className="">
-						// 		<div>
-						// 			<p>{position.userId}</p>
-						// 			<p>{position.name}</p>
-						// 			<p>{position.username}</p>
-						// 			<p>{position.type}</p>
-						// 		</div>
-						// 	</Popup>
-						// </Marker>
 						<VehicleMarker
 							key={position.userId}
 							position={[position.latitude!, position.longitude!]}
@@ -74,7 +55,6 @@ export default function Map({
 							vehicleName={position.name}
 							username={position.username}
 							tasks={position.tasks}
-							loggedInUserId={userId}
 						/>
 					)
 				})}
@@ -129,14 +109,12 @@ function VehicleMarker({
 	vehicleName,
 	username,
 	tasks,
-	loggedInUserId,
 }: {
 	position: [number, number]
 	userId: string
 	vehicleName: string
 	username: string
 	tasks: { status: string; requestId: string | null; offerId: string | null }[]
-	loggedInUserId: string | null
 }) {
 	const fetcher = useFetcher()
 	const [draggable, setDraggable] = useState(false)
@@ -174,7 +152,6 @@ function VehicleMarker({
 			position={position as [number, number]}
 			icon={vehicleIcon}
 			ref={markerRef}
-			opacity={loggedInUserId === userId ? 1 : 0.5}
 		>
 			<Popup minWidth={90}>
 				<p>{vehicleName}</p>
@@ -242,27 +219,34 @@ function BaseMarker({ position }: { position: [number, number] }) {
 	)
 }
 
-const vehicleIcon = L.icon({
-	iconUrl: '/img/mark-aid.svg',
+export const vehicleIcon = L.icon({
+	iconUrl: '/img/track.svg',
 	iconSize: [32, 32],
 	iconAnchor: [12, 41],
 	popupAnchor: [1, -34],
 })
-const warehouseIcon = L.icon({
+export const warehouseIcon = L.icon({
 	iconUrl: '/img/locationw.svg',
 	iconSize: [32, 32],
 	iconAnchor: [12, 41],
 	popupAnchor: [1, -34],
 })
 
-const offerIcon = L.icon({
+export const offerIcon = L.icon({
 	iconUrl: '/img/mark-plus.svg',
 	iconSize: [32, 32],
 	iconAnchor: [12, 41],
 	popupAnchor: [1, -34],
 })
 
-const requestIcon = L.icon({
+export const taskIcon = L.icon({
+	iconUrl: '/img/task.svg',
+	iconSize: [32, 32],
+	iconAnchor: [12, 41],
+	popupAnchor: [1, -34],
+})
+
+export const requestIcon = L.icon({
 	iconUrl: '/img/mark-x.svg',
 	iconSize: [32, 32],
 	iconAnchor: [12, 41],
