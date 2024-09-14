@@ -117,7 +117,13 @@ export async function action({ request }: ActionFunctionArgs) {
 			status: true,
 			offerId: true,
 			requestId: true,
-			offer: { select: { itemId: true, quantity: true } },
+			offer: {
+				select: {
+					itemId: true,
+					quantity: true,
+					announcementId: true,
+				},
+			},
 			request: { select: { itemId: true, quantity: true } },
 		},
 	})
@@ -129,6 +135,15 @@ export async function action({ request }: ActionFunctionArgs) {
 			await prisma.inventory.update({
 				where: { itemId: task.offer?.itemId },
 				data: { quantity: { increment: task.offer?.quantity } },
+			})
+			await prisma.announcementItem.update({
+				where: {
+					announcementId_itemId: {
+						announcementId: task.offer!.announcementId,
+						itemId: task.offer!.itemId,
+					},
+				},
+				data: { count: { increment: task.offer?.quantity } },
 			})
 		} else if (task.requestId) {
 			await prisma.inventory.update({

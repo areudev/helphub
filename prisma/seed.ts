@@ -162,6 +162,17 @@ async function seed() {
 	for (let index = 0; index < totalUsers; index++) {
 		const userData = createUser()
 		const offerOrRequest = faker.number.int({ min: 0, max: 1 })
+
+		// Randomly select an announcement
+		const randomAnnouncement = faker.helpers.arrayElement(
+			dummyData.announcements,
+		)
+
+		// Randomly select an item from the announcement's items
+		const randomAnnouncementItem = faker.helpers.arrayElement(
+			randomAnnouncement.items,
+		)
+
 		await prisma.user
 			.create({
 				select: { id: true },
@@ -176,17 +187,15 @@ async function seed() {
 						? {
 								offers: {
 									create: {
-										quantity: faker.number.int({ min: 1, max: 6 }),
+										quantity: faker.number.int({
+											min: 1,
+											max: randomAnnouncementItem.quantity,
+										}),
 										announcement: {
-											connect: {
-												id: faker.helpers.arrayElement(dummyData.announcements)
-													.id,
-											},
+											connect: { id: randomAnnouncement.id },
 										},
 										item: {
-											connect: {
-												id: faker.helpers.arrayElement(dummyData.items).id,
-											},
+											connect: { id: randomAnnouncementItem.itemId },
 										},
 									},
 								},
@@ -201,47 +210,6 @@ async function seed() {
 									},
 								},
 							}),
-
-					// offers: {
-					// 	create: Array.from({
-					// 		length: faker.number.int({ min: 2, max: 5 }),
-					// 	}).map(() => {
-					// 		const announcement = faker.helpers.arrayElement(
-					// 			dummyData.announcements,
-					// 		)
-					// 		const announcementItem = faker.helpers.arrayElement(
-					// 			announcement.items,
-					// 		)
-					// 		return {
-					// 			quantity: faker.number.int({
-					// 				min: 1,
-					// 				max: 10,
-					// 			}),
-					// 			announcement: {
-					// 				connect: { id: announcement.id },
-					// 			},
-					// 			item: {
-					// 				connect: { id: announcementItem.itemId },
-					// 			},
-					// 		}
-					// 	}),
-					// },
-					// requests: {
-					// 	create: Array.from({
-					// 		length: faker.number.int({ min: 2, max: 5 }),
-					// 	}).map(() => {
-					// 		const item = faker.helpers.arrayElement(dummyData.items)
-					// 		const quantity = faker.number.int({ min: 1, max: 10 })
-					// 		const numberOfPeople = faker.number.int({ min: 1, max: 5 })
-					// 		const note = faker.lorem.paragraph()
-					// 		return {
-					// 			itemId: item.id,
-					// 			quantity,
-					// 			numberOfPeople,
-					// 			notes: note,
-					// 		}
-					// 	}),
-					// },
 					notes: {
 						create: Array.from({
 							length: faker.number.int({ min: 1, max: 3 }),
