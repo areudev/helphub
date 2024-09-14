@@ -8,6 +8,7 @@ import { useLoaderData } from '@remix-run/react'
 import { lazy, Suspense } from 'react'
 import { ClientOnly } from 'remix-utils/client-only'
 import { useGeolocation } from '#app/hooks/use-geolocation.tsx'
+import { getUserId } from '#app/utils/auth.server.ts'
 import { prisma } from '#app/utils/db.server.ts'
 import { requireUserWithRole } from '#app/utils/permissions.server.ts'
 
@@ -57,7 +58,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	return json({ success: true })
 }
-export async function loader({}: LoaderFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
+	const userId = await getUserId(request)
+
 	const base = await prisma.base.findFirst({
 		select: {
 			latitude: true,
@@ -105,10 +108,11 @@ export async function loader({}: LoaderFunctionArgs) {
 			quantity: true,
 		},
 	})
-	return json({ vehicles, offers, requests, base })
+	return json({ vehicles, offers, requests, base, userId })
 }
 export default function MapRoute() {
-	const { vehicles, offers, requests, base } = useLoaderData<typeof loader>()
+	const { vehicles, offers, requests, base, userId } =
+		useLoaderData<typeof loader>()
 	const vehiclePositions = vehicles.map((vehicle) => ({
 		userId: vehicle.user.id,
 		latitude: vehicle.user.latitude,
@@ -116,6 +120,7 @@ export default function MapRoute() {
 		username: vehicle.user.username,
 		type: 'vehicle' as const,
 		name: vehicle.name,
+		tasks: vehicle.user.tasks,
 	}))
 	const offerPositions = offers.map((offer) => ({
 		latitude: offer.user.latitude,
@@ -145,6 +150,7 @@ export default function MapRoute() {
 								offerPositions={offerPositions}
 								requestPositions={requestPositions}
 								base={base}
+								userId={userId}
 							/>
 						</Suspense>
 					)}
