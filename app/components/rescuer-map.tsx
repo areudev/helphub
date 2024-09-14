@@ -75,10 +75,10 @@ export default function RescuerMap() {
 						<p>{requesttask.quantity}</p>
 						<Button asChild>
 							<Link
-								className="text-foreground"
+								className="!text-primary-foreground"
 								to={`/users/${currentRescuerVehicle.user.username}/tasks/${requesttask.task?.id}`}
 							>
-								View
+								View or Edit
 							</Link>
 						</Button>
 					</Popup>
@@ -95,10 +95,10 @@ export default function RescuerMap() {
 						<p>{offertask.quantity}</p>
 						<Button asChild>
 							<Link
-								className="text-foreground"
+								className="!text-primary-foreground"
 								to={`/users/${currentRescuerVehicle.user.username}/tasks/${offertask.task?.id}`}
 							>
-								View
+								View or Edit
 							</Link>
 						</Button>
 					</Popup>

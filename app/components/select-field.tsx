@@ -14,7 +14,7 @@ import {
 
 type SelectFieldProps = {
 	name: FieldName<string>
-	options: Array<{ value: string; label: string }>
+	options: Array<{ value: string; label: string; disabled?: boolean }>
 	label: string
 	className?: string
 }
@@ -50,7 +50,11 @@ export function SelectField({
 					<SelectGroup>
 						<SelectLabel>{label}</SelectLabel>
 						{options.map((option) => (
-							<SelectItem key={option.value} value={option.value}>
+							<SelectItem
+								key={option.value}
+								value={option.value}
+								disabled={option.disabled}
+							>
 								{option.label}
 							</SelectItem>
 						))}

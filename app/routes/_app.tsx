@@ -40,11 +40,7 @@ export default function AppLayout() {
 	return (
 		<div className="space-y-4">
 			{!hasLocation && username ? (
-				<LocationWarning
-					hasLocation={hasLocation}
-					isRescuer={isRescuer}
-					username={username}
-				/>
+				<LocationWarning hasLocation={hasLocation} isRescuer={isRescuer} />
 			) : null}
 			{isRescuer && username ? (
 				<RescuerOnlyWarning username={username} />
@@ -91,17 +87,6 @@ export default function AppLayout() {
 					>
 						Announcements
 					</NavLink>
-					<NavLink
-						className={({ isActive }) =>
-							cn(
-								'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
-								isActive && 'bg-background text-foreground shadow',
-							)
-						}
-						to="/map"
-					>
-						Map
-					</NavLink>
 				</div>
 			</div>
 
@@ -112,11 +97,9 @@ export default function AppLayout() {
 
 function LocationWarning({
 	isRescuer,
-	username,
 }: {
 	hasLocation: boolean
 	isRescuer: boolean
-	username: string
 }) {
 	return (
 		<div className="mx-auto flex max-w-xl flex-col items-center justify-center gap-2 rounded-md bg-destructive/30 p-4">
