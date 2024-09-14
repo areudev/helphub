@@ -128,7 +128,7 @@ function AddToTasksForm({ offerId }: { offerId: string }) {
 	)
 }
 
-export default function AdminOffersRoute() {
+export default function RescuerOffersRoute() {
 	const { offers } = useLoaderData<typeof loader>()
 	const [searchTerm, setSearchTerm] = useState('')
 

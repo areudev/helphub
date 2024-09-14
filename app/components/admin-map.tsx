@@ -18,7 +18,7 @@ type VehiclePosition = Position & {
 	userId: string
 	tasks: { status: string; requestId: string | null; offerId: string | null }[]
 }
-export default function Map({
+export default function AdminMap({
 	vehiclePositions,
 	offerPositions,
 	requestPositions,
@@ -219,27 +219,27 @@ function BaseMarker({ position }: { position: [number, number] }) {
 	)
 }
 
-const vehicleIcon = L.icon({
+export const vehicleIcon = L.icon({
 	iconUrl: '/img/mark-aid.svg',
 	iconSize: [32, 32],
 	iconAnchor: [12, 41],
 	popupAnchor: [1, -34],
 })
-const warehouseIcon = L.icon({
+export const warehouseIcon = L.icon({
 	iconUrl: '/img/locationw.svg',
 	iconSize: [32, 32],
 	iconAnchor: [12, 41],
 	popupAnchor: [1, -34],
 })
 
-const offerIcon = L.icon({
+export const offerIcon = L.icon({
 	iconUrl: '/img/mark-plus.svg',
 	iconSize: [32, 32],
 	iconAnchor: [12, 41],
 	popupAnchor: [1, -34],
 })
 
-const requestIcon = L.icon({
+export const requestIcon = L.icon({
 	iconUrl: '/img/mark-x.svg',
 	iconSize: [32, 32],
 	iconAnchor: [12, 41],
