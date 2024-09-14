@@ -74,7 +74,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			id: true,
 			item: { select: { name: true } },
 			user: { select: { username: true, latitude: true, longitude: true } },
-			task: { select: { id: true, rescuerId: true } },
+			task: { select: { id: true, rescuerId: true, status: true } },
 			quantity: true,
 			createdAt: true,
 		},

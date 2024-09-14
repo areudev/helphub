@@ -17,8 +17,12 @@ export default function RescuerMap() {
 		return <div>You are not assigned to any vehicle</div>
 	}
 
-	const offersWithTask = offers.filter((offer) => offer.task !== null)
-	const requestsWithTask = requests.filter((request) => request.task !== null)
+	const offersWithTask = offers.filter(
+		(offer) => offer.task !== null && offer.task.status !== 'completed',
+	)
+	const requestsWithTask = requests.filter(
+		(request) => request.task !== null && request.task.status !== 'completed',
+	)
 
 	const offersWithNoTask = offers.filter((offer) => offer.task === null)
 	const requestsWithNoTask = requests.filter((request) => request.task === null)
@@ -41,14 +45,17 @@ export default function RescuerMap() {
 	return (
 		<MapContainer
 			className="h-full w-full"
-			center={[patrasCenter.latitude, patrasCenter.longitude]}
+			center={[
+				currentRescuerVehicle.user.latitude!,
+				currentRescuerVehicle.user.longitude!,
+			]}
 			zoom={12}
 		>
 			<TileLayer
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
-			<Marker position={[patrasCenter.latitude, patrasCenter.longitude]} />
+			{/* <Marker position={[patrasCenter.latitude, patrasCenter.longitude]} /> */}
 			<CurrentVehicleMarker />
 			{otherVehicles.map((vehicle) => (
 				<Marker
