@@ -53,6 +53,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
 					username: true,
 					latitude: true,
 					longitude: true,
+					tasks: {
+						where: { status: 'in_progress' },
+						select: {
+							id: true,
+							status: true,
+							offer: {
+								select: {
+									user: { select: { latitude: true, longitude: true } },
+								},
+							},
+							request: {
+								select: {
+									user: { select: { latitude: true, longitude: true } },
+								},
+							},
+						},
+					},
 				},
 			},
 		},

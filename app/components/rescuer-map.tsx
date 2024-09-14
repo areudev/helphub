@@ -1,10 +1,10 @@
 import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 import L, { type Marker as LeafletMarker } from 'leaflet'
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { type loader } from '#app/routes/rescuer+/map.tsx'
-import { patrasCenter } from '#app/utils/locations.ts'
+// import { patrasCenter } from '#app/utils/locations.ts'
 import { offerIcon, requestIcon, taskIcon, vehicleIcon } from './admin-map.tsx'
 import { Button } from './ui/button.tsx'
 
@@ -42,6 +42,27 @@ export default function RescuerMap() {
 	)
 
 	const otherVehicles = vehicles.filter((vehicle) => vehicle.user.id !== userId)
+
+	const inProgressTasks = currentRescuerVehicle.user.tasks.filter(
+		(task) => task.status === 'in_progress',
+	)
+
+	const taskLines = inProgressTasks
+		.map((task) => {
+			const taskLocation = task.offer?.user || task.request?.user
+			if (taskLocation && taskLocation.latitude && taskLocation.longitude) {
+				return [
+					[
+						currentRescuerVehicle.user.latitude!,
+						currentRescuerVehicle.user.longitude!,
+					],
+					[taskLocation.latitude, taskLocation.longitude],
+				] as [number, number][]
+			}
+			return null
+		})
+		.filter((line): line is [number, number][] => line !== null)
+
 	return (
 		<MapContainer
 			className="h-full w-full"
@@ -141,6 +162,9 @@ export default function RescuerMap() {
 					position={[request.user.latitude!, request.user.longitude!]}
 					icon={requestIcon}
 				/>
+			))}
+			{taskLines.map((positions, index) => (
+				<Polyline key={index} positions={positions} color="red" />
 			))}
 		</MapContainer>
 	)
