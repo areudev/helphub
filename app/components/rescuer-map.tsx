@@ -7,6 +7,8 @@ import { type loader } from '#app/routes/rescuer+/map.tsx'
 // import { patrasCenter } from '#app/utils/locations.ts'
 import { offerIcon, requestIcon, taskIcon, vehicleIcon } from './admin-map.tsx'
 import { Button } from './ui/button.tsx'
+import { AddRequestToTasksForm } from '#app/routes/rescuer+/requests.js'
+import { AddOfferToTasksForm } from '#app/routes/rescuer+/offers.js'
 
 export default function RescuerMap() {
 	const { vehicles, userId, offers, requests } = useLoaderData<typeof loader>()
@@ -99,8 +101,10 @@ export default function RescuerMap() {
 					icon={taskIcon}
 				>
 					<Popup>
-						<p>{requesttask.item.name}</p>
-						<p>{requesttask.quantity}</p>
+						<p>Request</p>
+						<p>
+							{requesttask.quantity} {requesttask.item.name}
+						</p>
 						<Button asChild>
 							<Link
 								className="!text-primary-foreground"
@@ -119,8 +123,10 @@ export default function RescuerMap() {
 					icon={taskIcon}
 				>
 					<Popup>
-						<p>{offertask.item.name}</p>
-						<p>{offertask.quantity}</p>
+						<p>Offer</p>
+						<p>
+							{offertask.quantity} {offertask.item.name}
+						</p>
 						<Button asChild>
 							<Link
 								className="!text-primary-foreground"
@@ -154,14 +160,30 @@ export default function RescuerMap() {
 					key={offer.id}
 					position={[offer.user.latitude!, offer.user.longitude!]}
 					icon={offerIcon}
-				/>
+				>
+					<Popup>
+						<p>
+							{offer.quantity} {offer.item.name}
+						</p>
+						<p>{offer.user.name}</p>
+						<AddOfferToTasksForm offerId={offer.id} />
+					</Popup>
+				</Marker>
 			))}
 			{requestsWithNoTask.map((request) => (
 				<Marker
 					key={request.id}
 					position={[request.user.latitude!, request.user.longitude!]}
 					icon={requestIcon}
-				/>
+				>
+					<Popup>
+						<p>
+							{request.quantity} {request.item.name}
+						</p>
+						<p>{request.user.name}</p>
+						<AddRequestToTasksForm requestId={request.id} />
+					</Popup>
+				</Marker>
 			))}
 			{taskLines.map((positions, index) => (
 				<Polyline key={index} positions={positions} color="red" />
@@ -217,11 +239,6 @@ function CurrentVehicleMarker() {
 			<Popup minWidth={90}>
 				<p>{currentRescuerVehicle?.name}</p>
 				<p>{currentRescuerVehicle?.user.username}</p>
-				{/* {currentRescuerVehicle?.currentLoad.map((task) => (
-					<p key={task.requestId || task.offerId}>
-						{task.requestId ? 'Request' : 'Offer'} {task.status}
-					</p>
-				))} */}
 				<Button onClick={toggleDraggable}>
 					{draggable
 						? 'Vehicle is draggable'

@@ -1,9 +1,8 @@
 import {
-	ActionFunctionArgs,
+	type ActionFunctionArgs,
 	json,
 	type LoaderFunctionArgs,
 } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
 import { lazy, Suspense } from 'react'
 import { ClientOnly } from 'remix-utils/client-only'
 import { prisma } from '#app/utils/db.server.ts'
@@ -79,7 +78,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		select: {
 			id: true,
 			item: { select: { name: true } },
-			user: { select: { username: true, latitude: true, longitude: true } },
+			user: {
+				select: { username: true, latitude: true, longitude: true, name: true },
+			},
 			task: { select: { id: true, rescuerId: true, status: true } },
 			quantity: true,
 			createdAt: true,
@@ -90,7 +91,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		select: {
 			id: true,
 			item: { select: { name: true } },
-			user: { select: { username: true, latitude: true, longitude: true } },
+			user: {
+				select: { username: true, latitude: true, longitude: true, name: true },
+			},
 			task: { select: { id: true, rescuerId: true, status: true } },
 			quantity: true,
 			createdAt: true,

@@ -103,13 +103,13 @@ function OfferRow({
 						</Link>
 					</Button>
 				) : (
-					<AddToTasksForm offerId={offer.id} />
+					<AddOfferToTasksForm offerId={offer.id} />
 				)}
 			</TableCell>
 		</TableRow>
 	)
 }
-function AddToTasksForm({ offerId }: { offerId: string }) {
+export function AddOfferToTasksForm({ offerId }: { offerId: string }) {
 	const [form, fields] = useForm({
 		id: `add-to-tasks-${offerId}`,
 		constraint: getZodConstraint(AddToTasksSchema),
@@ -118,7 +118,7 @@ function AddToTasksForm({ offerId }: { offerId: string }) {
 		},
 	})
 	return (
-		<Form method="POST" {...getFormProps(form)}>
+		<Form method="POST" action="/rescuer/offers" {...getFormProps(form)}>
 			<input type="hidden" name={fields.offerId.name} value={offerId} />
 			<Button type="submit" size="sm">
 				Add to Tasks
