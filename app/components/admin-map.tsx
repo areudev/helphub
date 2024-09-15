@@ -5,22 +5,31 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
 import 'leaflet/dist/leaflet.css'
-import { type loader } from '#app/routes/admin+/_manage+/maps.tsx'
+import { FilterState, type loader } from '#app/routes/admin+/_manage+/maps.tsx'
 import { patrasCenter } from '#app/utils/locations.ts'
 import { Button } from './ui/button'
 
-export default function AdminMap() {
+export default function AdminMap({ filters }: { filters: FilterState }) {
 	const { vehicles, offers, requests, base } = useLoaderData<typeof loader>()
 
-	const offersWithTask = offers.filter(
-		(offer) => offer.task !== null && offer.task.status !== 'completed',
-	)
-	const requestsWithTask = requests.filter(
-		(request) => request.task !== null && request.task.status !== 'completed',
-	)
+	const offersWithTask = filters.showOffersTasks
+		? offers.filter(
+				(offer) => offer.task !== null && offer.task.status !== 'completed',
+			)
+		: []
+	const requestsWithTask = filters.showRequestsTasks
+		? requests.filter(
+				(request) =>
+					request.task !== null && request.task.status !== 'completed',
+			)
+		: []
 
-	const offersWithNoTask = offers.filter((offer) => offer.task === null)
-	const requestsWithNoTask = requests.filter((request) => request.task === null)
+	const offersWithNoTask = filters.showOffers
+		? offers.filter((offer) => offer.task === null)
+		: []
+	const requestsWithNoTask = filters.showRequests
+		? requests.filter((request) => request.task === null)
+		: []
 
 	const inProgressTasks = [...offersWithTask, ...requestsWithTask].filter(
 		(task) => task.task?.status === 'in_progress',
@@ -62,17 +71,18 @@ export default function AdminMap() {
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
 			<MarkerClusterGroup chunkedLoading maxClusterRadius={50}>
-				{vehicles.map((vehicle) => (
-					<VehicleMarker
-						key={vehicle.id}
-						position={[vehicle.user.latitude!, vehicle.user.longitude!]}
-						userId={vehicle.user.id}
-						vehicleName={vehicle.name}
-						name={vehicle.user.name ?? vehicle.user.username}
-						username={vehicle.user.username}
-						tasks={vehicle.user.tasks}
-					/>
-				))}
+				{filters.showVehicles &&
+					vehicles.map((vehicle) => (
+						<VehicleMarker
+							key={vehicle.id}
+							position={[vehicle.user.latitude!, vehicle.user.longitude!]}
+							userId={vehicle.user.id}
+							vehicleName={vehicle.name}
+							name={vehicle.user.name ?? vehicle.user.username}
+							username={vehicle.user.username}
+							tasks={vehicle.user.tasks}
+						/>
+					))}
 				{offersWithTask.map((offertask) => (
 					<Marker
 						key={offertask.id}
@@ -80,7 +90,7 @@ export default function AdminMap() {
 						icon={taskIcon}
 					>
 						<Popup>
-							<p>Offer from {offertask.user.name}</p>
+							<p>Offer frotm {offertask.user.name}</p>
 							<p>
 								{offertask.quantity} {offertask.item.name}
 							</p>
@@ -140,7 +150,9 @@ export default function AdminMap() {
 						</Popup>
 					</Marker>
 				))}
-				<BaseMarker position={[base.latitude, base.longitude]} />
+				{filters.showBase && (
+					<BaseMarker position={[base.latitude, base.longitude]} />
+				)}
 			</MarkerClusterGroup>
 			{taskLines.map((line, index) => (
 				<Polyline

@@ -4,7 +4,7 @@ import {
 	type LoaderFunctionArgs,
 	json,
 } from '@remix-run/node'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useReducer } from 'react'
 import { ClientOnly } from 'remix-utils/client-only'
 import { prisma } from '#app/utils/db.server.ts'
 import { requireUserWithRole } from '#app/utils/permissions.server.ts'
@@ -148,11 +148,78 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 	return json({ vehicles, offers, requests, base })
 }
+
+export type FilterState = {
+	showOffers: boolean
+	showRequests: boolean
+	showOffersTasks: boolean
+	showRequestsTasks: boolean
+	showVehicles: boolean
+	showBase: boolean
+}
+
+type FilterAction =
+	| { type: 'TOGGLE_OFFERS' }
+	| { type: 'TOGGLE_REQUESTS' }
+	| { type: 'TOGGLE_OFFERS_TASKS' }
+	| { type: 'TOGGLE_REQUESTS_TASKS' }
+	| { type: 'TOGGLE_VEHICLES' }
+	| { type: 'TOGGLE_BASE' }
+
+const initialFiltersState: FilterState = {
+	showOffers: true,
+	showRequests: true,
+	showOffersTasks: true,
+	showRequestsTasks: true,
+	showVehicles: true,
+	showBase: true,
+}
+function filtersReducer(state: FilterState, action: FilterAction): FilterState {
+	switch (action.type) {
+		case 'TOGGLE_OFFERS':
+			return { ...state, showOffers: !state.showOffers }
+		case 'TOGGLE_REQUESTS':
+			return { ...state, showRequests: !state.showRequests }
+		case 'TOGGLE_OFFERS_TASKS':
+			return { ...state, showOffersTasks: !state.showOffersTasks }
+		case 'TOGGLE_REQUESTS_TASKS':
+			return { ...state, showRequestsTasks: !state.showRequestsTasks }
+		case 'TOGGLE_VEHICLES':
+			return { ...state, showVehicles: !state.showVehicles }
+		case 'TOGGLE_BASE':
+			return { ...state, showBase: !state.showBase }
+		default:
+			return state
+	}
+}
 export default function MapRoute() {
+	const [filters, dispatch] = useReducer(filtersReducer, initialFiltersState)
+
 	return (
 		<div className="container mx-auto max-w-4xl space-y-8 px-4 py-8">
 			<h1 className="text-h3">Map</h1>
-
+			<div className="flex flex-wrap gap-4">
+				<button onClick={() => dispatch({ type: 'TOGGLE_OFFERS' })}>
+					{filters.showOffers ? 'Hide Offers' : 'Show Offers'}
+				</button>
+				<button onClick={() => dispatch({ type: 'TOGGLE_REQUESTS' })}>
+					{filters.showRequests ? 'Hide Requests' : 'Show Requests'}
+				</button>
+				<button onClick={() => dispatch({ type: 'TOGGLE_OFFERS_TASKS' })}>
+					{filters.showOffersTasks ? 'Hide Offers Tasks' : 'Show Offers Tasks'}
+				</button>
+				<button onClick={() => dispatch({ type: 'TOGGLE_REQUESTS_TASKS' })}>
+					{filters.showRequestsTasks
+						? 'Hide Requests Tasks'
+						: 'Show Requests Tasks'}
+				</button>
+				<button onClick={() => dispatch({ type: 'TOGGLE_VEHICLES' })}>
+					{filters.showVehicles ? 'Hide Vehicles' : 'Show Vehicles'}
+				</button>
+				<button onClick={() => dispatch({ type: 'TOGGLE_BASE' })}>
+					{filters.showBase ? 'Hide Base' : 'Show Base'}
+				</button>
+			</div>
 			<div className="light h-[600px]">
 				<ClientOnly fallback={<p>Loading map...</p>}>
 					{() => (
@@ -163,7 +230,7 @@ export default function MapRoute() {
 								requestPositions={requestPositions}
 								base={base}
 							/> */}
-							<LazyMap />
+							<LazyMap filters={filters} />
 						</Suspense>
 					)}
 				</ClientOnly>
