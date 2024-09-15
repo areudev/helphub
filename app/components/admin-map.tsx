@@ -1,14 +1,27 @@
 import { Link, useFetcher, useLoaderData } from '@remix-run/react'
+import { formatDistanceToNow } from 'date-fns'
 import L, { type Marker as LeafletMarker } from 'leaflet'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import MarkerClusterGroup from 'react-leaflet-cluster'
 import 'leaflet/dist/leaflet.css'
+import { type loader } from '#app/routes/admin+/_manage+/maps.tsx'
 import { patrasCenter } from '#app/utils/locations.ts'
 import { Button } from './ui/button'
-import { type loader } from '#app/routes/admin+/_manage+/maps.tsx'
 
 export default function AdminMap() {
 	const { vehicles, offers, requests, base } = useLoaderData<typeof loader>()
+
+	const offersWithTask = offers.filter(
+		(offer) => offer.task !== null && offer.task.status !== 'completed',
+	)
+	const requestsWithTask = requests.filter(
+		(request) => request.task !== null && request.task.status !== 'completed',
+	)
+
+	const offersWithNoTask = offers.filter((offer) => offer.task === null)
+	const requestsWithNoTask = requests.filter((request) => request.task === null)
+
 	return (
 		<MapContainer
 			className="h-full w-full"
@@ -19,17 +32,86 @@ export default function AdminMap() {
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
-			{vehicles.map((vehicle) => (
-				<VehicleMarker
-					key={vehicle.id}
-					position={[vehicle.user.latitude!, vehicle.user.longitude!]}
-					userId={vehicle.user.id}
-					vehicleName={vehicle.name}
-					username={vehicle.user.username}
-					tasks={vehicle.user.tasks}
-				/>
-			))}
-			<BaseMarker position={[base.latitude, base.longitude]} />
+			<MarkerClusterGroup chunkedLoading maxClusterRadius={50}>
+				{vehicles.map((vehicle) => (
+					<VehicleMarker
+						key={vehicle.id}
+						position={[vehicle.user.latitude!, vehicle.user.longitude!]}
+						userId={vehicle.user.id}
+						vehicleName={vehicle.name}
+						username={vehicle.user.username}
+						tasks={vehicle.user.tasks}
+					/>
+				))}
+				{offersWithTask.map((offertask) => (
+					<Marker
+						key={offertask.id}
+						position={[offertask.user.latitude!, offertask.user.longitude!]}
+						icon={taskIcon}
+					>
+						<Popup>
+							<p>Offer from {offertask.user.name}</p>
+							<p>
+								{offertask.quantity} {offertask.item.name}
+							</p>
+							<p>Task to {offertask.task?.rescuer.name}</p>
+							<p>Task status: {offertask.task?.status}</p>
+						</Popup>
+					</Marker>
+				))}
+				{requestsWithTask.map((requesttask) => (
+					<Marker
+						key={requesttask.id}
+						position={[requesttask.user.latitude!, requesttask.user.longitude!]}
+						icon={taskIcon}
+					>
+						<Popup>
+							<p>Request from {requesttask.user.name}</p>
+							<p>
+								{requesttask.quantity} {requesttask.item.name}
+							</p>
+							<p>Task to {requesttask.task?.rescuer.name}</p>
+							<p>Status: {requesttask.task?.status}</p>
+						</Popup>
+					</Marker>
+				))}
+				{offersWithNoTask.map((offer) => (
+					<Marker
+						key={offer.id}
+						position={[offer.user.latitude!, offer.user.longitude!]}
+						icon={offerIcon}
+					>
+						<Popup>
+							<p>
+								{offer.quantity} {offer.item.name}
+							</p>
+							<p>Offer from {offer.user.name}</p>
+							<p>
+								Created before {formatDistanceToNow(new Date(offer.createdAt))}
+							</p>
+						</Popup>
+					</Marker>
+				))}
+				{requestsWithNoTask.map((request) => (
+					<Marker
+						key={request.id}
+						position={[request.user.latitude!, request.user.longitude!]}
+						icon={requestIcon}
+					>
+						<Popup>
+							<p>
+								{request.quantity} {request.item.name}
+							</p>
+							<p>Request from {request.user.name}</p>
+							<p>
+								Created before{' '}
+								{formatDistanceToNow(new Date(request.createdAt))}
+							</p>
+						</Popup>
+					</Marker>
+				))}
+				<BaseMarker position={[base.latitude, base.longitude]} />
+			</MarkerClusterGroup>
 		</MapContainer>
 	)
 }
