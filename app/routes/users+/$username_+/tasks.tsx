@@ -126,6 +126,11 @@ function TaskList({
 								}
 							>
 								<h3 className="font-semibold">
+									{task.status === 'completed'
+										? '✅ '
+										: task.status === 'in_progress'
+											? '🛻 '
+											: '🔄 '}
 									{task.request
 										? `${task.request.item.name} Request`
 										: `${task.offer?.item.name} Offer`}
