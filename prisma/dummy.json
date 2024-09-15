@@ -66,6 +66,40 @@
 			]
 		},
 		{
+			"id": "1001",
+			"name": "Monster Energy Drink",
+			"categoryId": "1",
+			"details": [
+				{
+					"detail_name": "volume",
+					"detail_value": "500ml"
+				}
+			]
+		},
+		{
+			"id": "1002",
+			"name": "Coca Cola",
+			"categoryId": "1",
+			"details": [
+				{
+					"detail_name": "volume",
+					"detail_value": "250ml"
+				}
+			]
+		},
+		{
+			"id": "1003",
+			"name": "Pepsi",
+			"categoryId": "1",
+			"details": [
+				{
+					"detail_name": "volume",
+					"detail_value": "250ml"
+				}
+			]
+		},
+
+		{
 			"id": "2",
 			"name": "Canned Beans",
 			"categoryId": "2",
@@ -77,6 +111,72 @@
 				{
 					"detail_name": "type",
 					"detail_value": "kidney beans"
+				}
+			]
+		},
+		{
+			"id": "1004",
+			"name": "Pasta",
+			"categoryId": "2",
+			"details": [
+				{
+					"detail_name": "weight",
+					"detail_value": "500g"
+				}
+			]
+		},
+		{
+			"id": "1005",
+			"name": "Rice",
+			"categoryId": "2",
+			"details": [
+				{
+					"detail_name": "weight",
+					"detail_value": "1kg"
+				}
+			]
+		},
+		{
+			"id": "1006",
+			"name": "Canned Tuna",
+			"categoryId": "2",
+			"details": [
+				{
+					"detail_name": "weight",
+					"detail_value": "150g"
+				}
+			]
+		},
+		{
+			"id": "1007",
+			"name": "Canned Corn",
+			"categoryId": "2",
+			"details": [
+				{
+					"detail_name": "weight",
+					"detail_value": "150g"
+				}
+			]
+		},
+		{
+			"id": "1008",
+			"name": "Flour",
+			"categoryId": "2",
+			"details": [
+				{
+					"detail_name": "weight",
+					"detail_value": "1kg"
+				}
+			]
+		},
+		{
+			"id": "1009",
+			"name": "Sugar",
+			"categoryId": "2",
+			"details": [
+				{
+					"detail_name": "weight",
+					"detail_value": "1kg"
 				}
 			]
 		},
@@ -96,6 +196,51 @@
 			]
 		},
 		{
+			"id": "1010",
+			"name": "Pants",
+			"categoryId": "3",
+			"details": [
+				{
+					"detail_name": "size",
+					"detail_value": "large"
+				},
+				{
+					"detail_name": "material",
+					"detail_value": "nylon"
+				}
+			]
+		},
+		{
+			"id": "1011",
+			"name": "Shirt",
+			"categoryId": "3",
+			"details": [
+				{
+					"detail_name": "size",
+					"detail_value": "large"
+				},
+				{
+					"detail_name": "material",
+					"detail_value": "cotton"
+				}
+			]
+		},
+		{
+			"id": "1012",
+			"name": "Socks",
+			"categoryId": "3",
+			"details": [
+				{
+					"detail_name": "size",
+					"detail_value": "large"
+				},
+				{
+					"detail_name": "material",
+					"detail_value": "cotton"
+				}
+			]
+		},
+		{
 			"id": "4",
 			"name": "Flashlight",
 			"categoryId": "4",
@@ -111,6 +256,28 @@
 			]
 		},
 		{
+			"id": "1013",
+			"name": "Lantern",
+			"categoryId": "4",
+			"details": [
+				{
+					"detail_name": "battery type",
+					"detail_value": "AA"
+				}
+			]
+		},
+		{
+			"id": "1014",
+			"name": "Battery",
+			"categoryId": "4",
+			"details": [
+				{
+					"detail_name": "type",
+					"detail_value": "AA"
+				}
+			]
+		},
+		{
 			"id": "5",
 			"name": "Bandages",
 			"categoryId": "5",
@@ -119,6 +286,17 @@
 					"detail_name": "size",
 					"detail_value": "4 inch"
 				},
+				{
+					"detail_name": "quantity",
+					"detail_value": "50"
+				}
+			]
+		},
+		{
+			"id": "1015",
+			"name": "Face masks",
+			"categoryId": "5",
+			"details": [
 				{
 					"detail_name": "quantity",
 					"detail_value": "50"

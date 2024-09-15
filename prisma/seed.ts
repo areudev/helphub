@@ -148,6 +148,9 @@ async function seed() {
 					create: announcement.items.map((item) => ({
 						item: { connect: { id: item.itemId } },
 						quantity: item.quantity,
+						count: Math.floor(
+							item.quantity * faker.number.float({ min: 0, max: 0.3 }),
+						),
 					})),
 				},
 			},
