@@ -4,7 +4,6 @@ import {
 	type LoaderFunctionArgs,
 	json,
 } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
 import { lazy, Suspense } from 'react'
 import { ClientOnly } from 'remix-utils/client-only'
 import { prisma } from '#app/utils/db.server.ts'
@@ -74,6 +73,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 				select: {
 					id: true,
 					username: true,
+					name: true,
 					latitude: true,
 					longitude: true,
 					tasks: {

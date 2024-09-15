@@ -68,6 +68,7 @@ export default function AdminMap() {
 						position={[vehicle.user.latitude!, vehicle.user.longitude!]}
 						userId={vehicle.user.id}
 						vehicleName={vehicle.name}
+						name={vehicle.user.name ?? vehicle.user.username}
 						username={vehicle.user.username}
 						tasks={vehicle.user.tasks}
 					/>
@@ -159,12 +160,14 @@ function VehicleMarker({
 	userId,
 	vehicleName,
 	username,
+	name,
 	tasks,
 }: {
 	position: [number, number]
 	userId: string
 	vehicleName: string
 	username: string
+	name: string
 	tasks: {
 		status: string
 		requestId: string | null
@@ -212,7 +215,7 @@ function VehicleMarker({
 		>
 			<Popup minWidth={90}>
 				<p>{vehicleName}</p>
-				<p>{username}</p>
+				<p>{name}</p>
 				<div>
 					{tasks.map((task) => {
 						if (task.requestId && task.request) {
