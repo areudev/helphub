@@ -2,7 +2,7 @@ import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 import { formatDistanceToNow } from 'date-fns'
 import L, { type Marker as LeafletMarker } from 'leaflet'
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
 import 'leaflet/dist/leaflet.css'
 import { type loader } from '#app/routes/admin+/_manage+/maps.tsx'
@@ -21,6 +21,35 @@ export default function AdminMap() {
 
 	const offersWithNoTask = offers.filter((offer) => offer.task === null)
 	const requestsWithNoTask = requests.filter((request) => request.task === null)
+
+	const inProgressTasks = [...offersWithTask, ...requestsWithTask].filter(
+		(task) => task.task?.status === 'in_progress',
+	)
+
+	const taskLines = inProgressTasks
+		.map((task) => {
+			const rescuerVehicle = vehicles.find(
+				(vehicle) => vehicle.user.id === task.task?.rescuerId,
+			)
+			if (
+				rescuerVehicle &&
+				rescuerVehicle.user.latitude &&
+				rescuerVehicle.user.longitude
+			) {
+				return {
+					positions: [
+						[rescuerVehicle.user.latitude, rescuerVehicle.user.longitude],
+						[task.user.latitude!, task.user.longitude!],
+					] as [number, number][],
+					color: generateColor(rescuerVehicle.id),
+				}
+			}
+			return null
+		})
+		.filter(
+			(line): line is { positions: [number, number][]; color: string } =>
+				line !== null,
+		)
 
 	return (
 		<MapContainer
@@ -112,9 +141,19 @@ export default function AdminMap() {
 				))}
 				<BaseMarker position={[base.latitude, base.longitude]} />
 			</MarkerClusterGroup>
+			{taskLines.map((line, index) => (
+				<Polyline
+					key={index}
+					positions={line.positions}
+					color={line.color}
+					weight={3}
+					opacity={0.8}
+				/>
+			))}
 		</MapContainer>
 	)
 }
+
 function VehicleMarker({
 	position,
 	userId,
@@ -289,3 +328,12 @@ export const requestIcon = L.icon({
 	iconAnchor: [12, 41],
 	popupAnchor: [1, -34],
 })
+
+function generateColor(id: string) {
+	let hash = 0
+	for (let i = 0; i < id.length; i++) {
+		hash = id.charCodeAt(i) + ((hash << 5) - hash)
+	}
+	const hue = hash % 360
+	return `hsl(${hue}, 100%, 50%)`
+}
