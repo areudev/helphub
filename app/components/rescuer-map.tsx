@@ -5,24 +5,14 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
 import 'leaflet/dist/leaflet.css'
-import { type loader } from '#app/routes/rescuer+/map.tsx'
+import { type FilterState, type loader } from '#app/routes/rescuer+/map.tsx'
 // import { patrasCenter } from '#app/utils/locations.ts'
 import { AddOfferToTasksForm } from '#app/routes/rescuer+/offers.tsx'
 import { AddRequestToTasksForm } from '#app/routes/rescuer+/requests.tsx'
 import { offerIcon, requestIcon, taskIcon, vehicleIcon } from './admin-map.tsx'
 import { Button } from './ui/button.tsx'
 
-// const createCustomClusterIcon = (cluster: any) => {
-// 	const childCount = cluster.getChildCount()
-// 	const size = childCount < 10 ? 24 : childCount < 20 ? 32 : 40
-// 	return L.divIcon({
-// 		html: `<span class="text-white">${childCount}</span>`,
-// 		className: 'custom-cluster-icon',
-// 		iconSize: [size, size],
-// 	})
-// }
-
-export default function RescuerMap() {
+export default function RescuerMap({ filters }: { filters: FilterState }) {
 	const { vehicles, userId, offers, requests, activeTasks } =
 		useLoaderData<typeof loader>()
 	const currentRescuerVehicle = vehicles.find(
@@ -39,24 +29,30 @@ export default function RescuerMap() {
 		(request) => request.task !== null && request.task.status !== 'completed',
 	)
 
-	const offersWithNoTask = offers.filter((offer) => offer.task === null)
-	const requestsWithNoTask = requests.filter((request) => request.task === null)
+	const offersWithNoTask = filters.showOffers
+		? offers.filter((offer) => offer.task === null)
+		: []
+	const requestsWithNoTask = filters.showRequests
+		? requests.filter((request) => request.task === null)
+		: []
 
 	const currentRescuerTasksOffers = offersWithTask.filter(
 		(offer) => offer.task?.rescuerId === userId,
 	)
-	const otherRescuerTasksOffers = offersWithTask.filter(
-		(offer) => offer.task?.rescuerId !== userId,
-	)
-
 	const currentRescuerTasksRequests = requestsWithTask.filter(
 		(request) => request.task?.rescuerId === userId,
 	)
-	const otherRescuerTasksRequests = requestsWithTask.filter(
-		(request) => request.task?.rescuerId !== userId,
-	)
+	const otherRescuerTasksOffers = filters.showOtherTasks
+		? offersWithTask.filter((offer) => offer.task?.rescuerId !== userId)
+		: []
 
-	const otherVehicles = vehicles.filter((vehicle) => vehicle.user.id !== userId)
+	const otherRescuerTasksRequests = filters.showOtherTasks
+		? requestsWithTask.filter((request) => request.task?.rescuerId !== userId)
+		: []
+
+	const otherVehicles = filters.showOtherVehicles
+		? vehicles.filter((vehicle) => vehicle.user.id !== userId)
+		: []
 
 	const inProgressTasks = currentRescuerVehicle.user.tasks.filter(
 		(task) => task.status === 'in_progress',

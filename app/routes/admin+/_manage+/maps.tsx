@@ -266,7 +266,13 @@ export default function MapRoute() {
 	)
 }
 
-const FilterToggle = ({ bool, label }: { bool: boolean; label: string }) =>
+export const FilterToggle = ({
+	bool,
+	label,
+}: {
+	bool: boolean
+	label: string
+}) =>
 	bool ? (
 		<p className="flex items-center gap-2">
 			<Icon name="eye-open" />
