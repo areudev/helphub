@@ -1,17 +1,30 @@
 import { Link, useFetcher, useLoaderData } from '@remix-run/react'
-import L, { type Marker as LeafletMarker } from 'leaflet'
+import { formatDistanceToNow } from 'date-fns'
+import { type Marker as LeafletMarker } from 'leaflet'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
+import MarkerClusterGroup from 'react-leaflet-cluster'
 import 'leaflet/dist/leaflet.css'
 import { type loader } from '#app/routes/rescuer+/map.tsx'
 // import { patrasCenter } from '#app/utils/locations.ts'
+import { AddOfferToTasksForm } from '#app/routes/rescuer+/offers.tsx'
+import { AddRequestToTasksForm } from '#app/routes/rescuer+/requests.tsx'
 import { offerIcon, requestIcon, taskIcon, vehicleIcon } from './admin-map.tsx'
 import { Button } from './ui/button.tsx'
-import { AddRequestToTasksForm } from '#app/routes/rescuer+/requests.js'
-import { AddOfferToTasksForm } from '#app/routes/rescuer+/offers.js'
+
+// const createCustomClusterIcon = (cluster: any) => {
+// 	const childCount = cluster.getChildCount()
+// 	const size = childCount < 10 ? 24 : childCount < 20 ? 32 : 40
+// 	return L.divIcon({
+// 		html: `<span class="text-white">${childCount}</span>`,
+// 		className: 'custom-cluster-icon',
+// 		iconSize: [size, size],
+// 	})
+// }
 
 export default function RescuerMap() {
-	const { vehicles, userId, offers, requests } = useLoaderData<typeof loader>()
+	const { vehicles, userId, offers, requests, activeTasks } =
+		useLoaderData<typeof loader>()
 	const currentRescuerVehicle = vehicles.find(
 		(vehicle) => vehicle.user.id === userId,
 	)
@@ -78,113 +91,165 @@ export default function RescuerMap() {
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
-			{/* <Marker position={[patrasCenter.latitude, patrasCenter.longitude]} /> */}
-			<CurrentVehicleMarker />
-			{otherVehicles.map((vehicle) => (
-				<Marker
-					key={vehicle.user.id}
-					position={[vehicle.user.latitude!, vehicle.user.longitude!]}
-					icon={vehicleIcon}
-					opacity={0.6}
-				>
-					<Popup>
-						<p>{vehicle.user.username}</p>
-						<p>{vehicle.currentLoad}</p>
-						<p>{vehicle.name}</p>
-					</Popup>
-				</Marker>
-			))}
-			{currentRescuerTasksRequests.map((requesttask) => (
-				<Marker
-					key={requesttask.id}
-					position={[requesttask.user.latitude!, requesttask.user.longitude!]}
-					icon={taskIcon}
-				>
-					<Popup>
-						<p>Request</p>
-						<p>
-							{requesttask.quantity} {requesttask.item.name}
-						</p>
-						<Button asChild>
-							<Link
-								className="!text-primary-foreground"
-								to={`/users/${currentRescuerVehicle.user.username}/tasks/${requesttask.task?.id}`}
-							>
-								View or Edit
-							</Link>
-						</Button>
-					</Popup>
-				</Marker>
-			))}
-			{currentRescuerTasksOffers.map((offertask) => (
-				<Marker
-					key={offertask.id}
-					position={[offertask.user.latitude!, offertask.user.longitude!]}
-					icon={taskIcon}
-				>
-					<Popup>
-						<p>Offer</p>
-						<p>
-							{offertask.quantity} {offertask.item.name}
-						</p>
-						<Button asChild>
-							<Link
-								className="!text-primary-foreground"
-								to={`/users/${currentRescuerVehicle.user.username}/tasks/${offertask.task?.id}`}
-							>
-								View or Edit
-							</Link>
-						</Button>
-					</Popup>
-				</Marker>
-			))}
-			{otherRescuerTasksOffers.map((offertask) => (
-				<Marker
-					key={offertask.id}
-					position={[offertask.user.latitude!, offertask.user.longitude!]}
-					icon={taskIcon}
-					opacity={0.6}
-				/>
-			))}
+			<MarkerClusterGroup chunkedLoading maxClusterRadius={50}>
+				{/* <Marker position={[patrasCenter.latitude, patrasCenter.longitude]} /> */}
+				<CurrentVehicleMarker />
+				{otherVehicles.map((vehicle) => (
+					<Marker
+						key={vehicle.user.id}
+						position={[vehicle.user.latitude!, vehicle.user.longitude!]}
+						icon={vehicleIcon}
+						opacity={0.6}
+					>
+						<Popup>
+							<p>{vehicle.user.username}</p>
+							<p>{vehicle.currentLoad}</p>
+							<p>{vehicle.name}</p>
+						</Popup>
+					</Marker>
+				))}
+				{currentRescuerTasksRequests.map((requesttask) => (
+					<Marker
+						key={requesttask.id}
+						position={[requesttask.user.latitude!, requesttask.user.longitude!]}
+						icon={taskIcon}
+					>
+						<Popup>
+							<p>
+								Request created before{' '}
+								{formatDistanceToNow(new Date(requesttask.createdAt))}
+							</p>
+							<p>
+								{requesttask.quantity} {requesttask.item.name}
+							</p>
+							<p>
+								Task Updated{' '}
+								{formatDistanceToNow(
+									new Date(requesttask.task?.updatedAt ?? ''),
+								)}
+							</p>
+							<p>Status: {requesttask.task?.status}</p>
+							<Button asChild>
+								<Link
+									className="!text-primary-foreground"
+									to={`/users/${currentRescuerVehicle.user.username}/tasks/${requesttask.task?.id}`}
+								>
+									View or Edit
+								</Link>
+							</Button>
+						</Popup>
+					</Marker>
+				))}
+				{currentRescuerTasksOffers.map((offertask) => (
+					<Marker
+						key={offertask.id}
+						position={[offertask.user.latitude!, offertask.user.longitude!]}
+						icon={taskIcon}
+					>
+						<Popup>
+							<p>
+								Offer created before{' '}
+								{formatDistanceToNow(new Date(offertask.createdAt))}
+							</p>
+							<p>
+								{offertask.quantity} {offertask.item.name}
+							</p>
+							<p>
+								Task Updated{' '}
+								{formatDistanceToNow(new Date(offertask.task?.updatedAt ?? ''))}
+							</p>
+							<p>Status: {offertask.task?.status}</p>
+							<Button asChild>
+								<Link
+									className="!text-primary-foreground"
+									to={`/users/${currentRescuerVehicle.user.username}/tasks/${offertask.task?.id}`}
+								>
+									View or Edit
+								</Link>
+							</Button>
+						</Popup>
+					</Marker>
+				))}
+				{otherRescuerTasksOffers.map((offertask) => (
+					<Marker
+						key={offertask.id}
+						position={[offertask.user.latitude!, offertask.user.longitude!]}
+						icon={taskIcon}
+						opacity={0.6}
+					>
+						<Popup>
+							<p>Offer from {offertask.user.name}</p>
+							<p>
+								{offertask.quantity} {offertask.item.name}
+							</p>
+							<p>Task to {offertask.task?.rescuer.name}</p>
+							<p>Task status: {offertask.task?.status}</p>
+						</Popup>
+					</Marker>
+				))}
 
-			{otherRescuerTasksRequests.map((requesttask) => (
-				<Marker
-					key={requesttask.id}
-					position={[requesttask.user.latitude!, requesttask.user.longitude!]}
-					icon={taskIcon}
-					opacity={0.6}
-				/>
-			))}
-			{offersWithNoTask.map((offer) => (
-				<Marker
-					key={offer.id}
-					position={[offer.user.latitude!, offer.user.longitude!]}
-					icon={offerIcon}
-				>
-					<Popup>
-						<p>
-							{offer.quantity} {offer.item.name}
-						</p>
-						<p>{offer.user.name}</p>
-						<AddOfferToTasksForm offerId={offer.id} />
-					</Popup>
-				</Marker>
-			))}
-			{requestsWithNoTask.map((request) => (
-				<Marker
-					key={request.id}
-					position={[request.user.latitude!, request.user.longitude!]}
-					icon={requestIcon}
-				>
-					<Popup>
-						<p>
-							{request.quantity} {request.item.name}
-						</p>
-						<p>{request.user.name}</p>
-						<AddRequestToTasksForm requestId={request.id} />
-					</Popup>
-				</Marker>
-			))}
+				{otherRescuerTasksRequests.map((requesttask) => (
+					<Marker
+						key={requesttask.id}
+						position={[requesttask.user.latitude!, requesttask.user.longitude!]}
+						icon={taskIcon}
+						opacity={0.6}
+					>
+						<Popup>
+							<p>Request from {requesttask.user.name}</p>
+							<p>
+								{requesttask.quantity} {requesttask.item.name}
+							</p>
+							<p>Task to {requesttask.task?.rescuer.name}</p>
+							<p>Status: {requesttask.task?.status}</p>
+						</Popup>
+					</Marker>
+				))}
+
+				{offersWithNoTask.map((offer) => (
+					<Marker
+						key={offer.id}
+						position={[offer.user.latitude!, offer.user.longitude!]}
+						icon={offerIcon}
+					>
+						<Popup>
+							<p>
+								{offer.quantity} {offer.item.name}
+							</p>
+							<p>Offer from {offer.user.name}</p>
+							<p>
+								Created before {formatDistanceToNow(new Date(offer.createdAt))}
+							</p>
+							<AddOfferToTasksForm
+								offerId={offer.id}
+								activeTasks={activeTasks}
+							/>
+						</Popup>
+					</Marker>
+				))}
+				{requestsWithNoTask.map((request) => (
+					<Marker
+						key={request.id}
+						position={[request.user.latitude!, request.user.longitude!]}
+						icon={requestIcon}
+					>
+						<Popup>
+							<p>
+								{request.quantity} {request.item.name}
+							</p>
+							<p>Request from {request.user.name}</p>
+							<p>
+								Created before{' '}
+								{formatDistanceToNow(new Date(request.createdAt))}
+							</p>
+							<AddRequestToTasksForm
+								requestId={request.id}
+								activeTasks={activeTasks}
+							/>
+						</Popup>
+					</Marker>
+				))}
+			</MarkerClusterGroup>
 			{taskLines.map((positions, index) => (
 				<Polyline key={index} positions={positions} color="red" />
 			))}

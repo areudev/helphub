@@ -4,9 +4,10 @@ import {
 	type LoaderFunctionArgs,
 	json,
 } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useReducer } from 'react'
 import { ClientOnly } from 'remix-utils/client-only'
+import { Icon } from '#app/components/ui/icon.tsx'
+import { Toggle } from '#app/components/ui/toggle.tsx'
 import { prisma } from '#app/utils/db.server.ts'
 import { requireUserWithRole } from '#app/utils/permissions.server.ts'
 
@@ -65,7 +66,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			longitude: true,
 		},
 	})
-	invariantResponse(base, 'asdfsafaf')
+	invariantResponse(base, 'no base found :(')
 
 	const vehicles = await prisma.vehicle.findMany({
 		select: {
@@ -74,6 +75,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 				select: {
 					id: true,
 					username: true,
+					name: true,
 					latitude: true,
 					longitude: true,
 					tasks: {
@@ -81,6 +83,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
 							status: true,
 							requestId: true,
 							offerId: true,
+							offer: {
+								select: {
+									item: { select: { name: true } },
+								},
+							},
+							request: {
+								select: {
+									item: { select: { name: true } },
+								},
+							},
 						},
 					},
 				},
@@ -92,62 +104,160 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	const offers = await prisma.offer.findMany({
 		select: {
 			id: true,
-			user: { select: { username: true, latitude: true, longitude: true } },
 			item: { select: { name: true } },
+			user: {
+				select: { username: true, latitude: true, longitude: true, name: true },
+			},
+			task: {
+				select: {
+					createdAt: true,
+					updatedAt: true,
+					id: true,
+					rescuerId: true,
+					status: true,
+					rescuer: {
+						select: { name: true },
+					},
+				},
+			},
 			quantity: true,
+			createdAt: true,
 		},
 	})
 
 	const requests = await prisma.request.findMany({
 		select: {
 			id: true,
-			user: { select: { username: true, latitude: true, longitude: true } },
 			item: { select: { name: true } },
+			user: {
+				select: { username: true, latitude: true, longitude: true, name: true },
+			},
+			task: {
+				select: {
+					updatedAt: true,
+					id: true,
+					rescuerId: true,
+					status: true,
+					rescuer: {
+						select: { name: true },
+					},
+				},
+			},
 			quantity: true,
+			createdAt: true,
 		},
 	})
+
 	return json({ vehicles, offers, requests, base })
 }
+
+export type FilterState = {
+	showOffers: boolean
+	showRequests: boolean
+	showOffersTasks: boolean
+	showRequestsTasks: boolean
+	showVehicles: boolean
+	showBase: boolean
+}
+
+type FilterAction =
+	| { type: 'TOGGLE_OFFERS' }
+	| { type: 'TOGGLE_REQUESTS' }
+	| { type: 'TOGGLE_OFFERS_TASKS' }
+	| { type: 'TOGGLE_REQUESTS_TASKS' }
+	| { type: 'TOGGLE_VEHICLES' }
+	| { type: 'TOGGLE_BASE' }
+
+const initialFiltersState: FilterState = {
+	showOffers: true,
+	showRequests: true,
+	showOffersTasks: true,
+	showRequestsTasks: true,
+	showVehicles: true,
+	showBase: true,
+}
+function filtersReducer(state: FilterState, action: FilterAction): FilterState {
+	switch (action.type) {
+		case 'TOGGLE_OFFERS':
+			return { ...state, showOffers: !state.showOffers }
+		case 'TOGGLE_REQUESTS':
+			return { ...state, showRequests: !state.showRequests }
+		case 'TOGGLE_OFFERS_TASKS':
+			return { ...state, showOffersTasks: !state.showOffersTasks }
+		case 'TOGGLE_REQUESTS_TASKS':
+			return { ...state, showRequestsTasks: !state.showRequestsTasks }
+		case 'TOGGLE_VEHICLES':
+			return { ...state, showVehicles: !state.showVehicles }
+		case 'TOGGLE_BASE':
+			return { ...state, showBase: !state.showBase }
+		default:
+			return state
+	}
+}
 export default function MapRoute() {
-	const { vehicles, offers, requests, base } = useLoaderData<typeof loader>()
-	const vehiclePositions = vehicles.map((vehicle) => ({
-		userId: vehicle.user.id,
-		latitude: vehicle.user.latitude,
-		longitude: vehicle.user.longitude,
-		username: vehicle.user.username,
-		type: 'vehicle' as const,
-		name: vehicle.name,
-		tasks: vehicle.user.tasks,
-	}))
-	const offerPositions = offers.map((offer) => ({
-		latitude: offer.user.latitude,
-		longitude: offer.user.longitude,
-		username: offer.user.username,
-		type: 'offer' as const,
-		name: offer.item.name,
-	}))
-	const requestPositions = requests.map((request) => ({
-		latitude: request.user.latitude,
-		longitude: request.user.longitude,
-		username: request.user.username,
-		type: 'request' as const,
-		name: request.item.name,
-	}))
+	const [filters, dispatch] = useReducer(filtersReducer, initialFiltersState)
 
 	return (
 		<div className="container mx-auto max-w-4xl space-y-8 px-4 py-8">
 			<h1 className="text-h3">Map</h1>
-
+			<div className="flex flex-wrap gap-2">
+				<Toggle
+					size="sm"
+					variant={'outline'}
+					pressed={filters.showOffers}
+					onPressedChange={() => dispatch({ type: 'TOGGLE_OFFERS' })}
+				>
+					<FilterToggle bool={filters.showOffers} label="Offers" />
+				</Toggle>
+				<Toggle
+					variant="outline"
+					size="sm"
+					pressed={filters.showRequests}
+					onPressedChange={() => dispatch({ type: 'TOGGLE_REQUESTS' })}
+				>
+					<FilterToggle bool={filters.showRequests} label="Requests" />
+				</Toggle>
+				<Toggle
+					variant="outline"
+					size="sm"
+					pressed={filters.showOffersTasks}
+					onPressedChange={() => dispatch({ type: 'TOGGLE_OFFERS_TASKS' })}
+				>
+					<FilterToggle bool={filters.showOffersTasks} label="Offers Tasks" />
+				</Toggle>
+				<Toggle
+					variant="outline"
+					size="sm"
+					pressed={filters.showRequestsTasks}
+					onPressedChange={() => dispatch({ type: 'TOGGLE_REQUESTS_TASKS' })}
+				>
+					<FilterToggle
+						bool={filters.showRequestsTasks}
+						label="Requests Tasks"
+					/>
+				</Toggle>
+				<Toggle
+					variant="outline"
+					size="sm"
+					pressed={filters.showVehicles}
+					onPressedChange={() => dispatch({ type: 'TOGGLE_VEHICLES' })}
+				>
+					<FilterToggle bool={filters.showVehicles} label="Vehicles" />
+				</Toggle>
+				<Toggle
+					variant="outline"
+					size="sm"
+					pressed={filters.showBase}
+					onPressedChange={() => dispatch({ type: 'TOGGLE_BASE' })}
+				>
+					<FilterToggle bool={filters.showBase} label="Base" />
+				</Toggle>
+			</div>
 			<div className="light h-[600px]">
 				<ClientOnly fallback={<p>Loading map...</p>}>
 					{() => (
 						<Suspense fallback={<div>Loading map...</div>}>
-							<LazyMap
-								vehiclePositions={vehiclePositions}
-								offerPositions={offerPositions}
-								requestPositions={requestPositions}
-								base={base}
-							/>
+							<LazyMap filters={filters} />
 						</Suspense>
 					)}
 				</ClientOnly>
@@ -155,3 +265,16 @@ export default function MapRoute() {
 		</div>
 	)
 }
+
+const FilterToggle = ({ bool, label }: { bool: boolean; label: string }) =>
+	bool ? (
+		<p className="flex items-center gap-2">
+			<Icon name="eye-open" />
+			<span>{label}</span>
+		</p>
+	) : (
+		<p className="flex items-center gap-2">
+			<Icon name="eye-closed" />
+			<span>{label}</span>
+		</p>
+	)

@@ -2,7 +2,7 @@ import { type MetaFunction } from '@remix-run/node'
 import { Link } from '@remix-run/react'
 import { Button } from '../../components/ui/button.tsx'
 
-export const meta: MetaFunction = () => [{ title: 'Epic Notes' }]
+export const meta: MetaFunction = () => [{ title: 'Help Hub' }]
 
 export default function Index() {
 	return (
@@ -29,7 +29,7 @@ export default function Index() {
 						data-heading
 						className="mt-8 animate-slide-top text-4xl font-medium text-foreground [animation-delay:0.3s] [animation-fill-mode:backwards] md:text-5xl xl:mt-4 xl:animate-slide-left xl:text-6xl xl:[animation-delay:0.8s] xl:[animation-fill-mode:backwards]"
 					>
-						Help<span className="font-bold text-orange-400">Hub</span>
+						HelpHub
 					</h1>
 					<h2 className="mt-6 animate-slide-top text-2xl font-semibold text-muted-foreground [animation-delay:0.8s] [animation-fill-mode:backwards] xl:mt-8 xl:animate-slide-left xl:text-2xl xl:leading-10 xl:[animation-delay:1s] xl:[animation-fill-mode:backwards]">
 						Connecting Communities in Times of Crisis
@@ -55,12 +55,10 @@ export default function Index() {
 					<h2 className="animate-fade-in text-2xl font-semibold [animation-delay:1s] [animation-fill-mode:backwards]">
 						Key Features
 					</h2>
-					<ul className="animate-fade-in mt-4 space-y-2 [animation-delay:1.2s] [animation-fill-mode:backwards]">
+					<ul className="mt-4 animate-fade-in space-y-2 [animation-delay:1.2s] [animation-fill-mode:backwards]">
 						<li className="">🆘 Easy aid request creation for citizens</li>
 						<li className="">🎁 Donation offers for surplus items</li>
-						<li className="">
-							🗺️ Real-time map view for situational awareness
-						</li>
+						<li className="">🗺️ Map view for situational awareness</li>
 						<li className="">📝 Task management for rescuers</li>
 						<li className="">📢 Announcements from the central aid base</li>
 						<li className="">📦 Inventory management at the base warehouse</li>

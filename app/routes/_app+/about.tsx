@@ -45,8 +45,8 @@ export default function AboutRoute() {
 			<section className="space-y-4">
 				<h2 className="text-2xl font-semibold sm:text-3xl">Contact Us</h2>
 				<p className="text-lg">
-					If you have any questions or would like to contribute to DisasterAid
-					Hub, please reach out to us:
+					If you have any questions or would like to contribute to HelpHub,
+					please reach out to us:
 				</p>
 				<ul className="space-y-2 text-lg">
 					<li>
@@ -61,7 +61,7 @@ export default function AboutRoute() {
 							(123) 456-7890
 						</a>
 					</li>
-					<li>Address: 123 Relief Road, Anytown, USA</li>
+					<li>Address: 123 Some Street, Patras Greece</li>
 				</ul>
 			</section>
 

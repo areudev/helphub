@@ -11,29 +11,6 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "Note" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    "ownerId" TEXT NOT NULL,
-    CONSTRAINT "Note_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "NoteImage" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "altText" TEXT,
-    "contentType" TEXT NOT NULL,
-    "blob" BLOB NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    "noteId" TEXT NOT NULL,
-    CONSTRAINT "NoteImage_noteId_fkey" FOREIGN KEY ("noteId") REFERENCES "Note" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
 CREATE TABLE "UserImage" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "altText" TEXT,
@@ -143,7 +120,6 @@ CREATE TABLE "Request" (
     "quantity" INTEGER NOT NULL,
     "numberOfPeople" INTEGER NOT NULL,
     "userId" TEXT NOT NULL,
-    "status" TEXT NOT NULL,
     "notes" TEXT,
     "latitude" REAL,
     "longitude" REAL,
@@ -159,7 +135,6 @@ CREATE TABLE "Offer" (
     "itemId" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
     "userId" TEXT NOT NULL,
-    "status" TEXT NOT NULL,
     "announcementId" TEXT NOT NULL,
     "notes" TEXT,
     "latitude" REAL,
@@ -202,6 +177,13 @@ CREATE TABLE "Task" (
 );
 
 -- CreateTable
+CREATE TABLE "Base" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "latitude" REAL NOT NULL,
+    "longitude" REAL NOT NULL
+);
+
+-- CreateTable
 CREATE TABLE "Category" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL
@@ -220,6 +202,7 @@ CREATE TABLE "AnnouncementItem" (
     "announcementId" TEXT NOT NULL,
     "itemId" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
+    "count" INTEGER NOT NULL DEFAULT 0,
     CONSTRAINT "AnnouncementItem_announcementId_fkey" FOREIGN KEY ("announcementId") REFERENCES "Announcement" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "AnnouncementItem_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES "Item" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -245,15 +228,6 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
-
--- CreateIndex
-CREATE INDEX "Note_ownerId_idx" ON "Note"("ownerId");
-
--- CreateIndex
-CREATE INDEX "Note_ownerId_updatedAt_idx" ON "Note"("ownerId", "updatedAt");
-
--- CreateIndex
-CREATE INDEX "NoteImage_noteId_idx" ON "NoteImage"("noteId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserImage_userId_key" ON "UserImage"("userId");
@@ -290,6 +264,9 @@ CREATE UNIQUE INDEX "Task_offerId_key" ON "Task"("offerId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AnnouncementItem_announcementId_itemId_key" ON "AnnouncementItem"("announcementId", "itemId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_PermissionToRole_AB_unique" ON "_PermissionToRole"("A", "B");

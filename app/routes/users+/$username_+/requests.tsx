@@ -64,7 +64,7 @@ export default function OffersRoute() {
 							</h2>
 							{isOwner ? (
 								<Button asChild className="mb-4 w-full">
-									<Link to="/supplies">Make a request 💸</Link>
+									<Link to="/supplies">Make a request</Link>
 								</Button>
 							) : null}
 							{offers.length === 0 ? (
@@ -105,7 +105,7 @@ export default function OffersRoute() {
 								{isOwner ? (
 									<Button asChild className="mb-4 w-full">
 										<DrawerClose>
-											<Link to="/supplies">Make a request 💸</Link>
+											<Link to="/supplies">Make a request</Link>
 										</DrawerClose>
 									</Button>
 								) : null}

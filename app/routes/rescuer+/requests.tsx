@@ -57,7 +57,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-	await requireUserWithRole(request, 'rescuer')
+	const rescuerId = await requireUserWithRole(request, 'rescuer')
 
 	const requests = await prisma.request.findMany({
 		include: {
@@ -69,51 +69,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		},
 	})
 
-	return json({ requests })
-}
+	const activeTasks = await prisma.task.count({
+		where: {
+			rescuerId,
+			status: { in: ['pending', 'in_progress'] },
+		},
+	})
 
-function RequestRow({
-	request,
-}: {
-	request: {
-		id: string
-		quantity: number
-		numberOfPeople: number
-		notes: string | null
-		user: { username: string }
-		item: { name: string }
-		task: {
-			id: string
-			rescuer: { username: string }
-		} | null
-	}
-}) {
-	return (
-		<TableRow className="text-center" key={request.id}>
-			<TableCell>{request.user.username}</TableCell>
-			<TableCell>{request.item.name}</TableCell>
-			<TableCell>{request.quantity}</TableCell>
-			<TableCell>{request.numberOfPeople}</TableCell>
-			<TableCell>{request.notes}</TableCell>
-			<TableCell className="flex justify-center gap-2">
-				{request.task ? (
-					<Button size="sm">
-						<Link
-							to={`/users/${request.task.rescuer.username}/tasks/${request.task.id}`}
-						>
-							View Task
-						</Link>
-					</Button>
-				) : (
-					<AddRequestToTasksForm requestId={request.id} />
-				)}
-			</TableCell>
-		</TableRow>
-	)
+	return json({ requests, activeTasks })
 }
 
 export default function AdminRequestsRoute() {
-	const { requests } = useLoaderData<typeof loader>()
+	const { requests, activeTasks } = useLoaderData<typeof loader>()
 	const [searchTerm, setSearchTerm] = useState('')
 
 	const filteredRequests = requests.filter(
@@ -151,7 +118,11 @@ export default function AdminRequestsRoute() {
 					</TableHeader>
 					<TableBody>
 						{filteredRequests.map((request) => (
-							<RequestRow request={request} key={request.id} />
+							<RequestRow
+								activeTasks={activeTasks}
+								request={request}
+								key={request.id}
+							/>
 						))}
 					</TableBody>
 				</Table>
@@ -160,7 +131,58 @@ export default function AdminRequestsRoute() {
 	)
 }
 
-export function AddRequestToTasksForm({ requestId }: { requestId: string }) {
+function RequestRow({
+	request,
+	activeTasks,
+}: {
+	activeTasks: number
+	request: {
+		id: string
+		quantity: number
+		numberOfPeople: number
+		notes: string | null
+		user: { username: string }
+		item: { name: string }
+		task: {
+			id: string
+			rescuer: { username: string }
+		} | null
+	}
+}) {
+	return (
+		<TableRow className="text-center" key={request.id}>
+			<TableCell>{request.user.username}</TableCell>
+			<TableCell>{request.item.name}</TableCell>
+			<TableCell>{request.quantity}</TableCell>
+			<TableCell>{request.numberOfPeople}</TableCell>
+			<TableCell>{request.notes}</TableCell>
+			<TableCell className="flex justify-center gap-2">
+				{request.task ? (
+					<Button size="sm">
+						<Link
+							to={`/users/${request.task.rescuer.username}/tasks/${request.task.id}`}
+						>
+							View Task
+						</Link>
+					</Button>
+				) : (
+					<AddRequestToTasksForm
+						requestId={request.id}
+						activeTasks={activeTasks}
+					/>
+				)}
+			</TableCell>
+		</TableRow>
+	)
+}
+
+export function AddRequestToTasksForm({
+	requestId,
+	activeTasks,
+}: {
+	requestId: string
+	activeTasks: number
+}) {
 	const [form, fields] = useForm({
 		id: `add-to-tasks-${requestId}`,
 		constraint: getZodConstraint(AddToTasksSchema),
@@ -171,8 +193,8 @@ export function AddRequestToTasksForm({ requestId }: { requestId: string }) {
 	return (
 		<Form method="POST" action="/rescuer/requests" {...getFormProps(form)}>
 			<input type="hidden" name={fields.requestId.name} value={requestId} />
-			<Button type="submit" size="sm">
-				Add to Tasks
+			<Button disabled={activeTasks >= 4} type="submit" size="sm">
+				{activeTasks >= 4 ? 'Max Tasks Reached' : 'Add to Tasks'}
 			</Button>
 			<ErrorList errors={form.errors} />
 		</Form>

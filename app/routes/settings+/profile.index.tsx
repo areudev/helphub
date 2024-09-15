@@ -171,15 +171,7 @@ export default function EditUserProfile() {
 						</Icon>
 					</Link>
 				</div>
-				<div>
-					<Link
-						reloadDocument
-						download="my-epic-notes-data.json"
-						to="/resources/download-user-data"
-					>
-						<Icon name="download">Download your data</Icon>
-					</Link>
-				</div>
+
 				<SignOutOfSessions />
 				<DeleteData />
 			</div>
