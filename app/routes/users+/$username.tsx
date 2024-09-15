@@ -119,7 +119,7 @@ export default function ProfileRoute() {
 										</Button>
 									</>
 								) : null}
-								{user.roles.find((role) => role.name === 'user') ? (
+								{user.roles.find((role) => role.name === 'rescuer') ? (
 									<>
 										<Button asChild>
 											<Link to="tasks" prefetch="intent">
