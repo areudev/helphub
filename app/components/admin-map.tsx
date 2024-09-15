@@ -5,7 +5,10 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
 import 'leaflet/dist/leaflet.css'
-import { FilterState, type loader } from '#app/routes/admin+/_manage+/maps.tsx'
+import {
+	type FilterState,
+	type loader,
+} from '#app/routes/admin+/_manage+/maps.tsx'
 import { patrasCenter } from '#app/utils/locations.ts'
 import { Button } from './ui/button'
 

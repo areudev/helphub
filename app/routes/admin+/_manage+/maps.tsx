@@ -6,6 +6,7 @@ import {
 } from '@remix-run/node'
 import { lazy, Suspense, useReducer } from 'react'
 import { ClientOnly } from 'remix-utils/client-only'
+import { Toggle } from '#app/components/ui/toggle.tsx'
 import { prisma } from '#app/utils/db.server.ts'
 import { requireUserWithRole } from '#app/utils/permissions.server.ts'
 
@@ -198,27 +199,51 @@ export default function MapRoute() {
 	return (
 		<div className="container mx-auto max-w-4xl space-y-8 px-4 py-8">
 			<h1 className="text-h3">Map</h1>
-			<div className="flex flex-wrap gap-4">
-				<button onClick={() => dispatch({ type: 'TOGGLE_OFFERS' })}>
+			<div className="flex flex-wrap gap-2">
+				<Toggle
+					size="sm"
+					variant={'outline'}
+					onPressedChange={() => dispatch({ type: 'TOGGLE_OFFERS' })}
+				>
 					{filters.showOffers ? 'Hide Offers' : 'Show Offers'}
-				</button>
-				<button onClick={() => dispatch({ type: 'TOGGLE_REQUESTS' })}>
+				</Toggle>
+				<Toggle
+					variant="outline"
+					size="sm"
+					onPressedChange={() => dispatch({ type: 'TOGGLE_REQUESTS' })}
+				>
 					{filters.showRequests ? 'Hide Requests' : 'Show Requests'}
-				</button>
-				<button onClick={() => dispatch({ type: 'TOGGLE_OFFERS_TASKS' })}>
+				</Toggle>
+				<Toggle
+					variant="outline"
+					size="sm"
+					onPressedChange={() => dispatch({ type: 'TOGGLE_OFFERS_TASKS' })}
+				>
 					{filters.showOffersTasks ? 'Hide Offers Tasks' : 'Show Offers Tasks'}
-				</button>
-				<button onClick={() => dispatch({ type: 'TOGGLE_REQUESTS_TASKS' })}>
+				</Toggle>
+				<Toggle
+					variant="outline"
+					size="sm"
+					onPressedChange={() => dispatch({ type: 'TOGGLE_REQUESTS_TASKS' })}
+				>
 					{filters.showRequestsTasks
 						? 'Hide Requests Tasks'
 						: 'Show Requests Tasks'}
-				</button>
-				<button onClick={() => dispatch({ type: 'TOGGLE_VEHICLES' })}>
+				</Toggle>
+				<Toggle
+					variant="outline"
+					size="sm"
+					onPressedChange={() => dispatch({ type: 'TOGGLE_VEHICLES' })}
+				>
 					{filters.showVehicles ? 'Hide Vehicles' : 'Show Vehicles'}
-				</button>
-				<button onClick={() => dispatch({ type: 'TOGGLE_BASE' })}>
+				</Toggle>
+				<Toggle
+					variant="outline"
+					size="sm"
+					onPressedChange={() => dispatch({ type: 'TOGGLE_BASE' })}
+				>
 					{filters.showBase ? 'Hide Base' : 'Show Base'}
-				</button>
+				</Toggle>
 			</div>
 			<div className="light h-[600px]">
 				<ClientOnly fallback={<p>Loading map...</p>}>
