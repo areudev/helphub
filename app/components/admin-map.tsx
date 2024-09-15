@@ -1,39 +1,14 @@
-import { useFetcher } from '@remix-run/react'
+import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 import L, { type Marker as LeafletMarker } from 'leaflet'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { patrasCenter } from '#app/utils/locations.ts'
 import { Button } from './ui/button'
+import { type loader } from '#app/routes/admin+/_manage+/maps.tsx'
 
-type Position = {
-	latitude: number | null
-	longitude: number | null
-	username: string
-	type: 'vehicle' | 'offer' | 'request'
-	name: string
-}
-
-type VehiclePosition = Position & {
-	userId: string
-	tasks: { status: string; requestId: string | null; offerId: string | null }[]
-}
-export default function AdminMap({
-	vehiclePositions,
-	offerPositions,
-	requestPositions,
-	base,
-}: {
-	vehiclePositions: VehiclePosition[]
-	offerPositions: Position[]
-	requestPositions: Position[]
-	base: {
-		latitude: number
-		longitude: number
-	}
-}) {
-	let basePosition = [base.latitude, base.longitude] as [number, number]
-
+export default function AdminMap() {
+	const { vehicles, offers, requests, base } = useLoaderData<typeof loader>()
 	return (
 		<MapContainer
 			className="h-full w-full"
@@ -44,62 +19,17 @@ export default function AdminMap({
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
-			{vehiclePositions
-				.filter((position) => position.latitude && position.longitude)
-				.map((position) => {
-					return (
-						<VehicleMarker
-							key={position.userId}
-							position={[position.latitude!, position.longitude!]}
-							userId={position.userId}
-							vehicleName={position.name}
-							username={position.username}
-							tasks={position.tasks}
-						/>
-					)
-				})}
-
-			{offerPositions
-				.filter((position) => position.latitude && position.longitude)
-				.map((position, index) => {
-					return (
-						<Marker
-							key={`offer-${index}`}
-							position={[position.latitude!, position.longitude!]}
-							icon={offerIcon}
-						>
-							<Popup className="bg-background">
-								<div>
-									<p>{position.name}</p>
-									<p>{position.username}</p>
-									<p>{position.type}</p>
-								</div>
-							</Popup>
-						</Marker>
-					)
-				})}
-
-			{requestPositions
-				.filter((position) => position.latitude && position.longitude)
-				.map((position, index) => {
-					return (
-						<Marker
-							key={`request-${index}`}
-							position={[position.latitude!, position.longitude!]}
-							icon={requestIcon}
-						>
-							<Popup className="bg-background">
-								<div>
-									<p>{position.name}</p>
-									<p>{position.username}</p>
-									<p>{position.type}</p>
-								</div>
-							</Popup>
-						</Marker>
-					)
-				})}
-
-			<BaseMarker position={basePosition} />
+			{vehicles.map((vehicle) => (
+				<VehicleMarker
+					key={vehicle.id}
+					position={[vehicle.user.latitude!, vehicle.user.longitude!]}
+					userId={vehicle.user.id}
+					vehicleName={vehicle.name}
+					username={vehicle.user.username}
+					tasks={vehicle.user.tasks}
+				/>
+			))}
+			<BaseMarker position={[base.latitude, base.longitude]} />
 		</MapContainer>
 	)
 }
@@ -114,7 +44,13 @@ function VehicleMarker({
 	userId: string
 	vehicleName: string
 	username: string
-	tasks: { status: string; requestId: string | null; offerId: string | null }[]
+	tasks: {
+		status: string
+		requestId: string | null
+		offerId: string | null
+		request: { item: { name: string } } | null
+		offer: { item: { name: string } } | null
+	}[]
 }) {
 	const fetcher = useFetcher()
 	const [draggable, setDraggable] = useState(false)
@@ -156,16 +92,35 @@ function VehicleMarker({
 			<Popup minWidth={90}>
 				<p>{vehicleName}</p>
 				<p>{username}</p>
-				{tasks.map((task) => (
-					<p key={task.requestId || task.offerId}>
-						{task.requestId ? 'Request' : 'Offer'} {task.status}
-					</p>
-				))}
-				<Button onClick={toggleDraggable}>
-					{draggable
-						? 'Vehicle is draggable'
-						: 'Click here to make vehicle draggable'}
-				</Button>
+				<div>
+					{tasks.map((task) => {
+						if (task.requestId && task.request) {
+							return (
+								<p key={task.requestId}>
+									Request for {task.request.item.name} {task.status}
+								</p>
+							)
+						}
+						if (task.offerId && task.offer) {
+							return (
+								<p key={task.offerId}>
+									Offer for {task.offer.item.name} {task.status}
+								</p>
+							)
+						}
+						return null
+					})}
+				</div>
+				<div className="flex flex-col gap-1">
+					<Button size="sm" asChild>
+						<Link className="!text-white" to={`/users/${username}/tasks`}>
+							View Rescuer Tasks
+						</Link>
+					</Button>
+					<Button size="sm" onClick={toggleDraggable}>
+						{draggable ? 'Vehicle is draggable' : 'Click to make it draggable'}
+					</Button>
+				</div>
 			</Popup>
 		</Marker>
 	)

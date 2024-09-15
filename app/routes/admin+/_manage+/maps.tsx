@@ -65,7 +65,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			longitude: true,
 		},
 	})
-	invariantResponse(base, 'asdfsafaf')
+	invariantResponse(base, 'no base found :(')
 
 	const vehicles = await prisma.vehicle.findMany({
 		select: {
@@ -81,6 +81,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
 							status: true,
 							requestId: true,
 							offerId: true,
+							offer: {
+								select: {
+									item: { select: { name: true } },
+								},
+							},
+							request: {
+								select: {
+									item: { select: { name: true } },
+								},
+							},
 						},
 					},
 				},
@@ -92,48 +102,53 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	const offers = await prisma.offer.findMany({
 		select: {
 			id: true,
-			user: { select: { username: true, latitude: true, longitude: true } },
 			item: { select: { name: true } },
+			user: {
+				select: { username: true, latitude: true, longitude: true, name: true },
+			},
+			task: {
+				select: {
+					createdAt: true,
+					updatedAt: true,
+					id: true,
+					rescuerId: true,
+					status: true,
+					rescuer: {
+						select: { name: true },
+					},
+				},
+			},
 			quantity: true,
+			createdAt: true,
 		},
 	})
 
 	const requests = await prisma.request.findMany({
 		select: {
 			id: true,
-			user: { select: { username: true, latitude: true, longitude: true } },
 			item: { select: { name: true } },
+			user: {
+				select: { username: true, latitude: true, longitude: true, name: true },
+			},
+			task: {
+				select: {
+					updatedAt: true,
+					id: true,
+					rescuerId: true,
+					status: true,
+					rescuer: {
+						select: { name: true },
+					},
+				},
+			},
 			quantity: true,
+			createdAt: true,
 		},
 	})
+
 	return json({ vehicles, offers, requests, base })
 }
 export default function MapRoute() {
-	const { vehicles, offers, requests, base } = useLoaderData<typeof loader>()
-	const vehiclePositions = vehicles.map((vehicle) => ({
-		userId: vehicle.user.id,
-		latitude: vehicle.user.latitude,
-		longitude: vehicle.user.longitude,
-		username: vehicle.user.username,
-		type: 'vehicle' as const,
-		name: vehicle.name,
-		tasks: vehicle.user.tasks,
-	}))
-	const offerPositions = offers.map((offer) => ({
-		latitude: offer.user.latitude,
-		longitude: offer.user.longitude,
-		username: offer.user.username,
-		type: 'offer' as const,
-		name: offer.item.name,
-	}))
-	const requestPositions = requests.map((request) => ({
-		latitude: request.user.latitude,
-		longitude: request.user.longitude,
-		username: request.user.username,
-		type: 'request' as const,
-		name: request.item.name,
-	}))
-
 	return (
 		<div className="container mx-auto max-w-4xl space-y-8 px-4 py-8">
 			<h1 className="text-h3">Map</h1>
@@ -142,12 +157,13 @@ export default function MapRoute() {
 				<ClientOnly fallback={<p>Loading map...</p>}>
 					{() => (
 						<Suspense fallback={<div>Loading map...</div>}>
-							<LazyMap
+							{/* <LazyMap
 								vehiclePositions={vehiclePositions}
 								offerPositions={offerPositions}
 								requestPositions={requestPositions}
 								base={base}
-							/>
+							/> */}
+							<LazyMap />
 						</Suspense>
 					)}
 				</ClientOnly>

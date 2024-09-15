@@ -1,9 +1,9 @@
 import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 import { formatDistanceToNow } from 'date-fns'
 import L, { type Marker as LeafletMarker } from 'leaflet'
-import MarkerClusterGroup from 'react-leaflet-cluster'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
+import MarkerClusterGroup from 'react-leaflet-cluster'
 import 'leaflet/dist/leaflet.css'
 import { type loader } from '#app/routes/rescuer+/map.tsx'
 // import { patrasCenter } from '#app/utils/locations.ts'
@@ -21,6 +21,7 @@ import { Button } from './ui/button.tsx'
 // 		iconSize: [size, size],
 // 	})
 // }
+
 export default function RescuerMap() {
 	const { vehicles, userId, offers, requests } = useLoaderData<typeof loader>()
 	const currentRescuerVehicle = vehicles.find(
