@@ -6,6 +6,7 @@ import {
 } from '@remix-run/node'
 import { lazy, Suspense, useReducer } from 'react'
 import { ClientOnly } from 'remix-utils/client-only'
+import { Icon } from '#app/components/ui/icon.tsx'
 import { Toggle } from '#app/components/ui/toggle.tsx'
 import { prisma } from '#app/utils/db.server.ts'
 import { requireUserWithRole } from '#app/utils/permissions.server.ts'
@@ -203,58 +204,59 @@ export default function MapRoute() {
 				<Toggle
 					size="sm"
 					variant={'outline'}
+					pressed={filters.showOffers}
 					onPressedChange={() => dispatch({ type: 'TOGGLE_OFFERS' })}
 				>
-					{filters.showOffers ? 'Hide Offers' : 'Show Offers'}
+					<FilterToggle bool={filters.showOffers} label="Offers" />
 				</Toggle>
 				<Toggle
 					variant="outline"
 					size="sm"
+					pressed={filters.showRequests}
 					onPressedChange={() => dispatch({ type: 'TOGGLE_REQUESTS' })}
 				>
-					{filters.showRequests ? 'Hide Requests' : 'Show Requests'}
+					<FilterToggle bool={filters.showRequests} label="Requests" />
 				</Toggle>
 				<Toggle
 					variant="outline"
 					size="sm"
+					pressed={filters.showOffersTasks}
 					onPressedChange={() => dispatch({ type: 'TOGGLE_OFFERS_TASKS' })}
 				>
-					{filters.showOffersTasks ? 'Hide Offers Tasks' : 'Show Offers Tasks'}
+					<FilterToggle bool={filters.showOffersTasks} label="Offers Tasks" />
 				</Toggle>
 				<Toggle
 					variant="outline"
 					size="sm"
+					pressed={filters.showRequestsTasks}
 					onPressedChange={() => dispatch({ type: 'TOGGLE_REQUESTS_TASKS' })}
 				>
-					{filters.showRequestsTasks
-						? 'Hide Requests Tasks'
-						: 'Show Requests Tasks'}
+					<FilterToggle
+						bool={filters.showRequestsTasks}
+						label="Requests Tasks"
+					/>
 				</Toggle>
 				<Toggle
 					variant="outline"
 					size="sm"
+					pressed={filters.showVehicles}
 					onPressedChange={() => dispatch({ type: 'TOGGLE_VEHICLES' })}
 				>
-					{filters.showVehicles ? 'Hide Vehicles' : 'Show Vehicles'}
+					<FilterToggle bool={filters.showVehicles} label="Vehicles" />
 				</Toggle>
 				<Toggle
 					variant="outline"
 					size="sm"
+					pressed={filters.showBase}
 					onPressedChange={() => dispatch({ type: 'TOGGLE_BASE' })}
 				>
-					{filters.showBase ? 'Hide Base' : 'Show Base'}
+					<FilterToggle bool={filters.showBase} label="Base" />
 				</Toggle>
 			</div>
 			<div className="light h-[600px]">
 				<ClientOnly fallback={<p>Loading map...</p>}>
 					{() => (
 						<Suspense fallback={<div>Loading map...</div>}>
-							{/* <LazyMap
-								vehiclePositions={vehiclePositions}
-								offerPositions={offerPositions}
-								requestPositions={requestPositions}
-								base={base}
-							/> */}
 							<LazyMap filters={filters} />
 						</Suspense>
 					)}
@@ -263,3 +265,16 @@ export default function MapRoute() {
 		</div>
 	)
 }
+
+const FilterToggle = ({ bool, label }: { bool: boolean; label: string }) =>
+	bool ? (
+		<p className="flex items-center gap-2">
+			<Icon name="eye-open" />
+			<span>{label}</span>
+		</p>
+	) : (
+		<p className="flex items-center gap-2">
+			<Icon name="eye-closed" />
+			<span>{label}</span>
+		</p>
+	)
