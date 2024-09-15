@@ -72,7 +72,7 @@ model Session {
 model Permission {
   id          String @id @default(cuid())
   action      String // e.g. create, read, update, delete
-  entity      String // e.g. note, item, offer, request, user, etc.
+  entity      String // e.g. item, offer, request, user, etc.
   access      String // e.g. own or any
   description String @default("")
 
@@ -182,11 +182,7 @@ model Request {
   numberOfPeople Int
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId         String
-  // status         String   // e.g., "pending", "approved", "received"
   notes          String?
-
-  latitude       Float?
-  longitude      Float?
   task           Task? 
   
   createdAt      DateTime @default(now())
@@ -200,13 +196,9 @@ model Offer {
   quantity       Int
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId         String
-  // status         String       // e.g., "pending", "approved", "received"
   announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   announcementId String
   notes          String?      
-
-  latitude       Float?
-  longitude      Float?
   task           Task?
 
   createdAt      DateTime     @default(now())

@@ -82,7 +82,7 @@ export default function ProfileRoute() {
 											</Link>
 										</Button>
 										<Button asChild>
-											<Link to="request" prefetch="intent">
+											<Link to="requests" prefetch="intent">
 												My requests
 											</Link>
 										</Button>
