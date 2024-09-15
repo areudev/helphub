@@ -81,7 +81,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			user: {
 				select: { username: true, latitude: true, longitude: true, name: true },
 			},
-			task: { select: { id: true, rescuerId: true, status: true } },
+			task: {
+				select: {
+					createdAt: true,
+					updatedAt: true,
+					id: true,
+					rescuerId: true,
+					status: true,
+					rescuer: {
+						select: { name: true },
+					},
+				},
+			},
 			quantity: true,
 			createdAt: true,
 		},
@@ -94,7 +105,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			user: {
 				select: { username: true, latitude: true, longitude: true, name: true },
 			},
-			task: { select: { id: true, rescuerId: true, status: true } },
+			task: {
+				select: {
+					updatedAt: true,
+					id: true,
+					rescuerId: true,
+					status: true,
+					rescuer: {
+						select: { name: true },
+					},
+				},
+			},
 			quantity: true,
 			createdAt: true,
 		},

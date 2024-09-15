@@ -7,8 +7,9 @@ import { type loader } from '#app/routes/rescuer+/map.tsx'
 // import { patrasCenter } from '#app/utils/locations.ts'
 import { offerIcon, requestIcon, taskIcon, vehicleIcon } from './admin-map.tsx'
 import { Button } from './ui/button.tsx'
-import { AddRequestToTasksForm } from '#app/routes/rescuer+/requests.js'
-import { AddOfferToTasksForm } from '#app/routes/rescuer+/offers.js'
+import { AddRequestToTasksForm } from '#app/routes/rescuer+/requests.tsx'
+import { AddOfferToTasksForm } from '#app/routes/rescuer+/offers.tsx'
+import { formatDistanceToNow } from 'date-fns'
 
 export default function RescuerMap() {
 	const { vehicles, userId, offers, requests } = useLoaderData<typeof loader>()
@@ -101,10 +102,18 @@ export default function RescuerMap() {
 					icon={taskIcon}
 				>
 					<Popup>
-						<p>Request</p>
+						<p>
+							Request created before{' '}
+							{formatDistanceToNow(new Date(requesttask.createdAt))}
+						</p>
 						<p>
 							{requesttask.quantity} {requesttask.item.name}
 						</p>
+						<p>
+							Task Updated{' '}
+							{formatDistanceToNow(new Date(requesttask.task?.updatedAt ?? ''))}
+						</p>
+						<p>Status: {requesttask.task?.status}</p>
 						<Button asChild>
 							<Link
 								className="!text-primary-foreground"
@@ -123,10 +132,18 @@ export default function RescuerMap() {
 					icon={taskIcon}
 				>
 					<Popup>
-						<p>Offer</p>
+						<p>
+							Offer created before{' '}
+							{formatDistanceToNow(new Date(offertask.createdAt))}
+						</p>
 						<p>
 							{offertask.quantity} {offertask.item.name}
 						</p>
+						<p>
+							Task Updated{' '}
+							{formatDistanceToNow(new Date(offertask.task?.updatedAt ?? ''))}
+						</p>
+						<p>Status: {offertask.task?.status}</p>
 						<Button asChild>
 							<Link
 								className="!text-primary-foreground"
@@ -144,7 +161,16 @@ export default function RescuerMap() {
 					position={[offertask.user.latitude!, offertask.user.longitude!]}
 					icon={taskIcon}
 					opacity={0.6}
-				/>
+				>
+					<Popup>
+						<p>Offer from {offertask.user.name}</p>
+						<p>
+							{offertask.quantity} {offertask.item.name}
+						</p>
+						<p>Task to {offertask.task?.rescuer.name}</p>
+						<p>Task status: {offertask.task?.status}</p>
+					</Popup>
+				</Marker>
 			))}
 
 			{otherRescuerTasksRequests.map((requesttask) => (
@@ -153,8 +179,18 @@ export default function RescuerMap() {
 					position={[requesttask.user.latitude!, requesttask.user.longitude!]}
 					icon={taskIcon}
 					opacity={0.6}
-				/>
+				>
+					<Popup>
+						<p>Request from {requesttask.user.name}</p>
+						<p>
+							{requesttask.quantity} {requesttask.item.name}
+						</p>
+						<p>Task to {requesttask.task?.rescuer.name}</p>
+						<p>Status: {requesttask.task?.status}</p>
+					</Popup>
+				</Marker>
 			))}
+
 			{offersWithNoTask.map((offer) => (
 				<Marker
 					key={offer.id}
@@ -165,7 +201,10 @@ export default function RescuerMap() {
 						<p>
 							{offer.quantity} {offer.item.name}
 						</p>
-						<p>{offer.user.name}</p>
+						<p>Offer from {offer.user.name}</p>
+						<p>
+							Created before {formatDistanceToNow(new Date(offer.createdAt))}
+						</p>
 						<AddOfferToTasksForm offerId={offer.id} />
 					</Popup>
 				</Marker>
@@ -180,7 +219,10 @@ export default function RescuerMap() {
 						<p>
 							{request.quantity} {request.item.name}
 						</p>
-						<p>{request.user.name}</p>
+						<p>Request from {request.user.name}</p>
+						<p>
+							Created before {formatDistanceToNow(new Date(request.createdAt))}
+						</p>
 						<AddRequestToTasksForm requestId={request.id} />
 					</Popup>
 				</Marker>
