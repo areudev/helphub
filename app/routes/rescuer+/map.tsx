@@ -74,6 +74,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		},
 	})
 
+	const activeTasks = await prisma.task.count({
+		where: {
+			rescuerId: userId,
+			status: { in: ['pending', 'in_progress'] },
+		},
+	})
+
 	const offers = await prisma.offer.findMany({
 		select: {
 			id: true,
@@ -121,7 +128,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		},
 	})
 
-	return json({ vehicles, userId, offers, requests })
+	return json({ vehicles, userId, offers, requests, activeTasks })
 }
 
 const LazyMap = lazy(() => import('#app/components/rescuer-map.tsx'))

@@ -54,7 +54,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	return redirect(`/users/${user?.username}/tasks/${task.id}`)
 }
 export async function loader({ request }: LoaderFunctionArgs) {
-	await requireUserWithRole(request, 'rescuer')
+	const rescuerId = await requireUserWithRole(request, 'rescuer')
 
 	const offers = await prisma.offer.findMany({
 		select: {
@@ -68,12 +68,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			task: { select: { id: true, rescuer: { select: { username: true } } } },
 		},
 	})
+	const activeTasks = await prisma.task.count({
+		where: {
+			rescuerId,
+			status: { in: ['pending', 'in_progress'] },
+		},
+	})
 
-	return json({ offers })
+	return json({ offers, activeTasks })
 }
 
 function OfferRow({
 	offer,
+	activeTasks,
 }: {
 	offer: {
 		id: string
@@ -83,13 +90,13 @@ function OfferRow({
 		announcement: { content: string }
 		task: { id: string; rescuer: { username: string } } | null
 	}
+	activeTasks: number
 }) {
 	return (
 		<TableRow className="text-center" key={offer.id}>
 			<TableCell className="font-medium">{offer.item.name}</TableCell>
 			<TableCell className="text-center">{offer.user.username}</TableCell>
 			<TableCell className="text-center">{offer.quantity}</TableCell>
-			{/* <TableCell className="text-center">{offer.status}</TableCell> */}
 			<TableCell className="text-center">
 				{offer.announcement.content}
 			</TableCell>
@@ -103,13 +110,19 @@ function OfferRow({
 						</Link>
 					</Button>
 				) : (
-					<AddOfferToTasksForm offerId={offer.id} />
+					<AddOfferToTasksForm offerId={offer.id} activeTasks={activeTasks} />
 				)}
 			</TableCell>
 		</TableRow>
 	)
 }
-export function AddOfferToTasksForm({ offerId }: { offerId: string }) {
+export function AddOfferToTasksForm({
+	offerId,
+	activeTasks,
+}: {
+	offerId: string
+	activeTasks: number
+}) {
 	const [form, fields] = useForm({
 		id: `add-to-tasks-${offerId}`,
 		constraint: getZodConstraint(AddToTasksSchema),
@@ -120,8 +133,8 @@ export function AddOfferToTasksForm({ offerId }: { offerId: string }) {
 	return (
 		<Form method="POST" action="/rescuer/offers" {...getFormProps(form)}>
 			<input type="hidden" name={fields.offerId.name} value={offerId} />
-			<Button type="submit" size="sm">
-				Add to Tasks
+			<Button type="submit" size="sm" disabled={activeTasks >= 4}>
+				{activeTasks >= 4 ? 'Max Tasks Reached' : 'Add to Tasks'}
 			</Button>
 			<ErrorList errors={form.errors} />
 		</Form>
@@ -129,7 +142,7 @@ export function AddOfferToTasksForm({ offerId }: { offerId: string }) {
 }
 
 export default function RescuerOffersRoute() {
-	const { offers } = useLoaderData<typeof loader>()
+	const { offers, activeTasks } = useLoaderData<typeof loader>()
 	const [searchTerm, setSearchTerm] = useState('')
 
 	const filteredOffers = offers.filter(
@@ -167,7 +180,11 @@ export default function RescuerOffersRoute() {
 					</TableHeader>
 					<TableBody>
 						{filteredOffers.map((offer) => (
-							<OfferRow offer={offer} key={offer.id} />
+							<OfferRow
+								offer={offer}
+								key={offer.id}
+								activeTasks={activeTasks}
+							/>
 						))}
 					</TableBody>
 				</Table>

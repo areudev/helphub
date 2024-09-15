@@ -23,7 +23,8 @@ import { Button } from './ui/button.tsx'
 // }
 
 export default function RescuerMap() {
-	const { vehicles, userId, offers, requests } = useLoaderData<typeof loader>()
+	const { vehicles, userId, offers, requests, activeTasks } =
+		useLoaderData<typeof loader>()
 	const currentRescuerVehicle = vehicles.find(
 		(vehicle) => vehicle.user.id === userId,
 	)
@@ -219,7 +220,10 @@ export default function RescuerMap() {
 							<p>
 								Created before {formatDistanceToNow(new Date(offer.createdAt))}
 							</p>
-							<AddOfferToTasksForm offerId={offer.id} />
+							<AddOfferToTasksForm
+								offerId={offer.id}
+								activeTasks={activeTasks}
+							/>
 						</Popup>
 					</Marker>
 				))}
@@ -238,7 +242,10 @@ export default function RescuerMap() {
 								Created before{' '}
 								{formatDistanceToNow(new Date(request.createdAt))}
 							</p>
-							<AddRequestToTasksForm requestId={request.id} />
+							<AddRequestToTasksForm
+								requestId={request.id}
+								activeTasks={activeTasks}
+							/>
 						</Popup>
 					</Marker>
 				))}

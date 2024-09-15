@@ -257,8 +257,20 @@ async function seed() {
 					tasks: {
 						createMany: {
 							data: [
-								{ requestId: request.id, status: 'pending' },
-								{ offerId: offer.id, status: 'pending' },
+								{
+									requestId: request.id,
+									status: faker.helpers.arrayElement([
+										'pending',
+										'in_progress',
+									]),
+								},
+								{
+									offerId: offer.id,
+									status: faker.helpers.arrayElement([
+										'pending',
+										'in_progress',
+									]),
+								},
 							],
 						},
 					},
