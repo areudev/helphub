@@ -331,26 +331,29 @@ function UserDropdown() {
 							</DropdownMenuItem>
 						</>
 					) : null}
+					{user.roles.find((role) => role.name === 'user') ? (
+						<>
+							<DropdownMenuItem asChild>
+								<Link prefetch="intent" to={`/users/${user.username}/offers`}>
+									<Icon className="text-body-md" name="heart-filled">
+										Offers
+									</Icon>
+								</Link>
+							</DropdownMenuItem>
+							<DropdownMenuItem asChild>
+								<Link prefetch="intent" to={`/users/${user.username}/requests`}>
+									<Icon className="text-body-md" name="pencil-2">
+										Requests
+									</Icon>
+								</Link>
+							</DropdownMenuItem>
+						</>
+					) : null}
 
 					<DropdownMenuItem asChild>
 						<Link prefetch="intent" to={`/users/${user.username}`}>
 							<Icon className="text-body-md" name="gear">
 								Profile
-							</Icon>
-						</Link>
-					</DropdownMenuItem>
-
-					<DropdownMenuItem asChild>
-						<Link prefetch="intent" to={`/users/${user.username}/offers`}>
-							<Icon className="text-body-md" name="heart-filled">
-								Offers
-							</Icon>
-						</Link>
-					</DropdownMenuItem>
-					<DropdownMenuItem asChild>
-						<Link prefetch="intent" to={`/users/${user.username}/requests`}>
-							<Icon className="text-body-md" name="pencil-2">
-								Requests
 							</Icon>
 						</Link>
 					</DropdownMenuItem>

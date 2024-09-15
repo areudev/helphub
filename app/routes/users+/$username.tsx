@@ -17,6 +17,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 			username: true,
 			createdAt: true,
 			image: { select: { id: true } },
+			roles: true,
 		},
 		where: {
 			username: params.username,
@@ -73,16 +74,29 @@ export default function ProfileRoute() {
 					<div className="mt-10 flex flex-col gap-4 md:flex-row">
 						{isLoggedInUser ? (
 							<>
-								<Button asChild>
-									<Link to="offers" prefetch="intent">
-										My offers
-									</Link>
-								</Button>
-								<Button asChild>
-									<Link to="request" prefetch="intent">
-										My requests
-									</Link>
-								</Button>
+								{user.roles.find((role) => role.name === 'user') ? (
+									<>
+										<Button asChild>
+											<Link to="offers" prefetch="intent">
+												My offers
+											</Link>
+										</Button>
+										<Button asChild>
+											<Link to="request" prefetch="intent">
+												My requests
+											</Link>
+										</Button>
+									</>
+								) : null}
+								{user.roles.find((role) => role.name === 'rescuer') ? (
+									<>
+										<Button asChild>
+											<Link to="tasks" prefetch="intent">
+												My Tasks
+											</Link>
+										</Button>
+									</>
+								) : null}
 								<Button asChild>
 									<Link to="/settings/profile" prefetch="intent">
 										Edit profile
@@ -91,16 +105,29 @@ export default function ProfileRoute() {
 							</>
 						) : (
 							<>
-								<Button asChild>
-									<Link to="offers" prefetch="intent">
-										{userDisplayName}'s offers
-									</Link>
-								</Button>
-								<Button asChild>
-									<Link to="requests" prefetch="intent">
-										{userDisplayName}'s requests
-									</Link>
-								</Button>
+								{user.roles.find((role) => role.name === 'user') ? (
+									<>
+										<Button asChild>
+											<Link to="offers" prefetch="intent">
+												{userDisplayName}'s offers
+											</Link>
+										</Button>
+										<Button asChild>
+											<Link to="requests" prefetch="intent">
+												{userDisplayName}'s requests
+											</Link>
+										</Button>
+									</>
+								) : null}
+								{user.roles.find((role) => role.name === 'user') ? (
+									<>
+										<Button asChild>
+											<Link to="tasks" prefetch="intent">
+												{userDisplayName}'s tasks
+											</Link>
+										</Button>
+									</>
+								) : null}
 							</>
 						)}
 					</div>
