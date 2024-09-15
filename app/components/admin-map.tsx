@@ -301,7 +301,7 @@ function BaseMarker({ position }: { position: [number, number] }) {
 export const vehicleIcon = L.icon({
 	iconUrl: '/img/track.svg',
 	iconSize: [32, 32],
-	iconAnchor: [12, 41],
+	// iconAnchor: [12, 41],
 	popupAnchor: [1, -34],
 })
 export const warehouseIcon = L.icon({
@@ -321,7 +321,7 @@ export const offerIcon = L.icon({
 export const taskIcon = L.icon({
 	iconUrl: '/img/task.svg',
 	iconSize: [32, 32],
-	iconAnchor: [12, 41],
+	// iconAnchor: [12, 41],
 	popupAnchor: [1, -34],
 })
 
