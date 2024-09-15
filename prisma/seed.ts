@@ -30,6 +30,12 @@ const dummyPositions = [
 	{ latitude: 38.12047969949003, longitude: 21.931236961346837 },
 	{ latitude: 38.0572184796295, longitude: 21.75111428266655 },
 	{ latitude: 38.07589562278406, longitude: 21.798747841082463 },
+	{ latitude: 38.28100027635493, longitude: 21.769112715730387 },
+	{ latitude: 38.32906341952424, longitude: 21.875268341747745 },
+	{ latitude: 38.10001342424383, longitude: 21.69444438302358 },
+	{ latitude: 38.165689175271204, longitude: 21.40856538588409 },
+	{ latitude: 37.97863076399102, longitude: 21.319388822999468 },
+	{ latitude: 37.95301050305902, longitude: 21.93009442982505 },
 ]
 const kodyPosition = dummyPositions[0]
 const rescuerPositions = dummyPositions.slice(1, 6)
@@ -149,7 +155,7 @@ async function seed() {
 	}
 	console.timeEnd('📦 Created categories, items, and announcements...')
 
-	const totalUsers = 10
+	const totalUsers = 16
 	const totalRescuers = 3
 	console.time(
 		`👤 Created ${totalUsers} users and ${totalRescuers} rescuers...`,
