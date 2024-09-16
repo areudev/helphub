@@ -2,9 +2,9 @@
 
 University course project: Web-based disaster relief platform. Simulates
 streamlined emergency response, resource allocation, and volunteer coordination.
-Includes mock updates, interactive maps, and mobile-friendly
-interface. Demonstrates practical application of web development skills in
-crisis management scenarios.
+Includes mock updates, interactive maps, and mobile-friendly interface.
+Demonstrates practical application of web development skills in crisis
+management scenarios.
 
 ## Development
 
@@ -123,6 +123,30 @@ and password
             ├── edit
             └── new
 ```
+
+## Tech Stack
+
+- Frontend
+
+  - React and Remix: The app uses React as the primary frontend library, evident
+    from the use of React components and hooks throughout the codebase.
+  - Tailwind CSS: Used for styling the application, as seen in the tailwind.css
+    file and the use of Tailwind classes in components.
+
+- Backend
+
+  - Node.js and Express: The app uses Node.js and Express as the backend
+    framework, evident from the use of Express routes and middleware in the
+    server.js file.
+
+- Database
+
+  - SQLite: Used as the database, as seen in the data.db file.
+
+- Authentication
+
+  - Custom authentication system using sessions and passwords, with support for
+    roles and permissions.
 
 ## App Screenshots
 
