@@ -25,3 +25,5 @@ node_modules
 # generated files
 /app/components/ui/icons
 .github
+.obsidian
+md_images

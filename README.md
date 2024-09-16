@@ -30,6 +30,11 @@ Username: kody Password: kodylovesyou
 For logging with the other generated users just use their username as username
 and password
 
+## Database Schema
+
+![database schema](./database.png)
+
+## 
 ## Thanks
 
 You rock 🪨
