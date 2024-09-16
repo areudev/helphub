@@ -26,4 +26,4 @@ node_modules
 /app/components/ui/icons
 .github
 .obsidian
-md_images
+# md_images
