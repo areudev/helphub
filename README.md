@@ -16,7 +16,11 @@ management scenarios.
 
 `npm run setup`
 
-### Start dev server:
+### Run the app:
+
+`npm run start:mocks`
+
+### Development server:
 
 `npm run dev`
 
